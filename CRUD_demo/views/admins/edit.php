@@ -18,35 +18,37 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
+
     <div class="container mt-4">
-        <h2 class="mb-3">Thêm Người Dùng</h2>
+        <h2 class="mb-3">Sửa Admin</h2>
 
         <?php if (isset($error)): ?>
             <div><?= $error ?></div>
         <?php endif; ?>
         <form action="?controller=admin&action=updateAdmin" method="POST">
             <div class="mb-3">
-                <input type="hidden" class="form-control" id="id" name="id" value="<?= $user->getId() ?>">
+                <input type="hidden" class="form-control" id="id" name="id" value="<?= $admin->getId() ?>">
             </div>
             <div class="mb-3">
                 <label for="name" class="form-label">Tên</label>
-                <input type="text" class="form-control" id="name" name="name" value="<?= $user->getName() ?>">
-            </div>
+                <input type="text" class="form-control" id="name" name="name" value="<?= $admin->getName() ?>">
+                <div class="text-danger"><?= $errors['nameError'] ?? ''; ?></div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Mật Khẩu</label>
-                <input type="password" class="form-control" id="password" name="password"
-                    value="<?= $user->getPassword() ?>">
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?= $user->getEmail() ?>">
+                <input type="text" class="form-control" id="email" name="email" value="<?= $admin->getEmail() ?>">
+                <div class="text-danger"><?= $errors['emailError'] ?? ''; ?></div>
+
             </div>
 
             <div class="mb-3">
                 <label for="avatar" class="form-label">Ảnh Đại Diện (URL)</label>
-                <input type="text" class="form-control" id="avatar" name="avatar" value="<?= $user->getAvatar() ?>">
+                <input type="text" class="form-control" id="avatar" name="avatar" value="<?= $admin->getAvatar() ?>">
+                <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
+
             </div>
 
             <div class="mb-3">
@@ -59,7 +61,7 @@
 
             <div class="mb-3">
                 <label for="upd_id" class="form-label">Người Sửa (ID)</label>
-                <input type="number" class="form-control" id="upd_id" name="upd_id" value="<?= $user->getUpdId() ?>">
+                <input type="number" class="form-control" id="upd_id" name="upd_id">
             </div>
 
             <button type="submit" class="btn btn-success">Sửa Admin</button>

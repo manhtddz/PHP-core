@@ -4,6 +4,9 @@ require_once(dirname(__DIR__) . "/services/AdminService.php");
 require_once(dirname(__DIR__) . "/controllers/BaseController.php");
 require_once(dirname(__DIR__) . "/dto/AdminCreateRequest.php");
 require_once(dirname(__DIR__) . "/dto/AdminUpdateRequest.php");
+require_once(dirname(__DIR__) . "/dto/LoginRequest.php");
+require_once(dirname(__DIR__) . "/dto/SearchRequest.php");
+
 require_once(dirname(__DIR__) . "/exceptions/ValidationException.php");
 
 // require_once '../dto/UserRequest.php';
@@ -17,33 +20,62 @@ class AdminController extends BaseController
     }
     public function index()
     {
+        $this->checkLogin("adminIndex", "admin_id");
+
         $admins = $this->adminService->getAllAdmins();
-        // return $users;
         $this->view("admins.index", [
             "admins" => $admins,
         ]);
     }
+
+    public function searchForm()
+    {
+        session_start();
+        $admins = $_SESSION["searched_admins"] ?? []; // Lấy danh sách user từ session
+        // print_r($users);
+        unset($_SESSION["searched_admins"]); // Xóa session sau khi lấy để tránh hiển thị dữ liệu cũ khi refresh
+
+        $this->view("admins.search", ["admins" => $admins]);
+    }
+
+    public function search()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $req = new SearchRequest($_POST);
+            try {
+                session_start();
+                $admins = $this->adminService->search($req);
+                $_SESSION['searched_admins'] = $admins; // Lưu kết quả vào session
+                header('Location: ?controller=admin&action=searchForm'); // Redirect để đảm bảo hiển thị đúng UI
+                exit;
+            } catch (Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: ?controller=admin&action=searchForm');
+                exit;
+            }
+        }
+    }
+
     public function login()
     {
         session_start();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $req = new LoginRequest([
-                'password' => $_POST['password'],
-                'email' => $_POST['email'],
-            ]);
+            $req = new LoginRequest($_POST);
             try {
                 $admin = $this->adminService->login($req);
-                // echo $user->getName();
-                setcookie("admin", $admin->getName());
-                header('Location: ?controller=admin');
+                if ($admin) {
+                    $_SESSION['admin'] = $admin->getName();
+                    $_SESSION['admin_id'] = $admin->getId();
+                    header('Location: ?controller=admin');
+                    print_r($admin->getName());
+                }
+
                 exit;
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 header('Location: ?');
 
             }
-
-
         }
     }
 
@@ -61,6 +93,7 @@ class AdminController extends BaseController
             'errors' => $errors,
             'oldData' => $oldData
         ]);
+
     }
 
     public function edit()
@@ -73,10 +106,10 @@ class AdminController extends BaseController
 
         $id = $_GET["id"];
         $errors = $_SESSION['errors'] ?? [];
-        $oldData = $_SESSION['oldData'] ?? null;
+        // $oldData = $_SESSION['oldData'] ?? null;
 
         unset($_SESSION['errors']);
-        unset($_SESSION['oldData']);
+        // unset($_SESSION['oldData']);
 
 
         $admin = $this->adminService->getAdminById($id);
@@ -85,25 +118,14 @@ class AdminController extends BaseController
             header("Location: ?controller=admin");
             exit;
         }
-        if ($oldData) {
-            $admin = (object) array_merge((array) $admin, $oldData);
-        }
+        // if ($oldData) {
+        //     $admin = (object) array_merge((array) $admin, $oldData);
+        // }
         $this->view("admins.edit", [
             "admin" => $admin,
             "errors" => $errors
         ]);
 
-    }
-    public function info()
-    {
-        if (isset($_GET["id"]) && $_GET['id'] != "" && $_GET['id'] != "0") {
-            $id = $_GET["id"];
-            $admin = $this->adminService->getAdminById($id);
-
-            $this->view("admins.info", [
-                "admin" => $admin
-            ]);
-        }
     }
     public function createAdmin()
     {
@@ -111,21 +133,10 @@ class AdminController extends BaseController
 
         try {
             if (isset($_POST['add'])) {
-                $admin = new AdminCreateRequest([
-                    'name' => $_POST['name'],
-                    'password' => $_POST['password'],
-                    'email' => $_POST['email'],
-                    'avatar' => $_POST['avatar'],
-                    'role_type' => 1, // Mặc định là 1 (admin)
-                    'ins_id' => $_POST['ins_id'],
-                    // 'upd_id' => null, // Người cập nhật (giả định)
-                    'ins_datetime' => date('Y-m-d H:i:s'), // Ngày tạo
-                    // 'upd_datetime' => null, // Ngày cập nhật (null ban đầu)
-                    'del_flag' => 0 // Không bị xóa
-                ]);
+                $admin = new AdminCreateRequest($_POST);
 
                 $this->adminService->createAdmin($admin); // Gọi service
-                // header("Location: /users");
+                header("Location: ?controller=admin");
                 // exit;
             }
         } catch (ValidationException $e) {
@@ -134,7 +145,6 @@ class AdminController extends BaseController
 
             header("Location: ?controller=admin&action=create");
             exit;
-
         }
     }
     public function updateAdmin()
@@ -144,20 +154,9 @@ class AdminController extends BaseController
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = $_POST['id'];
-                $admin = new AdminUpdateRequest([
-                    'name' => $_POST['name'],
-                    'password' => $_POST['password'],
-                    'email' => $_POST['email'],
-                    'avatar' => $_POST['avatar'],
-                    'role_type' => $_POST['role_type'],
-                    // 'ins_id' => $_POST['ins_id'],
-                    'upd_id' => $_POST['upd_id'],
-                    // 'ins_datetime' => $_POST['ins_datetime'], // Ngày tạo
-                    'upd_datetime' => date('Y-m-d H:i:s'), // Ngày cập nhật (null ban đầu)
-                    'del_flag' => 0 // Không bị xóa
-                ]);// Tạo object từ request
+                $admin = new AdminUpdateRequest($_POST);// Tạo object từ request
                 $this->adminService->updateAdmin($id, $admin);
-
+                header("Location: ?controller=admin");
             }
         } catch (ValidationException $e) {
             $_SESSION['errors'] = $e->getErrors();
@@ -168,12 +167,20 @@ class AdminController extends BaseController
         }
 
     }
-    public function deleteAdmin($id)
+    public function deleteAdmin()
     {
-        $this->adminService->deleteAdmin($id);
-        header("Location: /admins");
-        exit;
+        if (!isset($_GET["id"]) || empty($_GET['id']) || $_GET['id'] == "0") {
+            $this->redirectError("ko có id");
+            exit;
+        }
+        try {
+            $id = $_GET["id"];
+            $this->adminService->deleteAdmin($id);
+            header("Location: ?controller=admin");
+            exit;
+        } catch (\Throwable $th) {
+            $this->redirectError("admin ko tồn tại");
+        }
     }
-
 }
 ?>

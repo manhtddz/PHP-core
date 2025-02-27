@@ -14,7 +14,7 @@ $controller->$actionName();
 
 ?>
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -28,4 +28,4 @@ $controller->$actionName();
 
 
 
-</body>
+</body> -->

@@ -16,19 +16,25 @@ class UserCreateRequest
     // Constructor
     public function __construct($data = [])
     {
-        if (!empty($data)) {
-            $this->name = $data['name'] ?? '';
-            $this->facebook_id = $data['facebook_id'] ?? '';
-            $this->password = $data['password'] ?? '';
-            $this->email = $data['email'] ?? '';
-            $this->avatar = $data['avatar'] ?? '';
-            $this->status = $data['status'] ?? '1';
-            $this->ins_id = $data['ins_id'] ?? null;
-            // $this->upd_id = $data['upd_id'] ?? null;
-            $this->ins_datetime = $data['ins_datetime'] ?? date('Y-m-d H:i:s');
-            // $this->upd_datetime = $data['upd_datetime'] ?? null;
-            $this->del_flag = $data['del_flag'] ?? '0';
+        // if (!empty($data)) {
+        foreach ($data as $key => $value) {
+            # code...
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
         }
+        // $this->name = $data['name'] ?? '';
+        // $this->facebook_id = $data['facebook_id'] ?? '';
+        // $this->password = $data['password'] ?? '';
+        // $this->email = $data['email'] ?? '';
+        // $this->avatar = $data['avatar'] ?? '';
+        $this->status = $data['status'] ?? '1';
+        // $this->ins_id = $data['ins_id'] ?? null;
+        // // $this->upd_id = $data['upd_id'] ?? null;
+        $this->ins_datetime = $data['ins_datetime'] ?? date('Y-m-d H:i:s');
+        // // $this->upd_datetime = $data['upd_datetime'] ?? null;
+        $this->del_flag = $data['del_flag'] ?? '0';
+        // }
     }
 
     // Getters

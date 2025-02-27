@@ -17,10 +17,9 @@ abstract class BaseRepository implements IRepository
     }
 
     //thêm attribute, limit, offset
-    public function getAll($limit = 10, $pageNumber = 1)
+    public function getAll(int $limit = 10, int $pageNumber = 1)
     {
         try {
-            // $selected = explode(',', $select);
             $offset = ($pageNumber - 1) * $limit;
             $results = $this->db->query("SELECT * FROM {$this->table} WHERE del_flag = 0 LIMIT $limit OFFSET $offset")->fetchAll(PDO::FETCH_ASSOC);
             return array_map(fn($data) => new $this->model($data), $results);
@@ -42,7 +41,7 @@ abstract class BaseRepository implements IRepository
             return null;
         }
     }
-    public function findById($id)
+    public function findById(int $id)
     {
         try {
             $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = :id  AND del_flag = 0");
@@ -53,6 +52,33 @@ abstract class BaseRepository implements IRepository
             echo $e->getMessage();
             return null;
         }
+    }
+    public function search(array $data)
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE del_flag = 0";
+        $params = [];
+
+        $conditions = [];
+
+        if (!empty($data['name'])) {
+            $conditions[] = "name LIKE :name";
+            $params['name'] = "%{$data['name']}%";
+        }
+
+        if (!empty($data['email'])) {
+            $conditions[] = "email LIKE :email";
+            $params['email'] = "%{$data['email']}%";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " AND (" . implode(" OR ", $conditions) . ")";
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(fn($data) => new $this->model($data), $results);
     }
 
     // Thêm user mới
@@ -75,11 +101,11 @@ abstract class BaseRepository implements IRepository
     }
 
     // Cập nhật user
-    public function update($id, array $data)
+    public function update(int $id, array $data)
     {
         try {
             $fields = implode(", ", array_map(fn($key) => "{$key} = :{$key}", array_keys($data)));
-            // print ($fields);
+            print ($fields);
 
             $stmt = $this->db->prepare("UPDATE {$this->table} SET {$fields} WHERE id = :id");
             $data['id'] = $id;
@@ -90,17 +116,29 @@ abstract class BaseRepository implements IRepository
     }
 
     // Xóa user
-    public function delete($id)
+    public function delete(int $id)
     {
         try {
-            $del_flag = 1;
-            $stmt = $this->db->prepare("UPDATE {$this->table} SET del_flag = :del_flag WHERE id = :id");
+            $stmt = $this->db->prepare("UPDATE {$this->table} SET del_flag = 1 WHERE id = :id");
             return $stmt->execute([
                 'id' => $id,
-                'del_flag' => $del_flag,
             ]);
         } catch (\Throwable $e) {
             echo $e->getMessage();
+        }
+    }
+    public function existedEmail(string $email)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE email = :email");
+        $stmt->execute([
+            'email' => $email
+        ]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return $result['id'];
+        } else {
+            return null;
         }
     }
 }

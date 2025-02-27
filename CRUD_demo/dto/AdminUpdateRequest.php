@@ -2,11 +2,9 @@
 class AdminUpdateRequest
 {
     private $name;
-    private $facebook_id;
-    private $password;
     private $email;
     private $avatar;
-    private $status;
+    private $role_type;
     // private $ins_id;
     private $upd_id;
     // private $ins_datetime;
@@ -16,19 +14,15 @@ class AdminUpdateRequest
     // Constructor
     public function __construct($data = [])
     {
-        if (!empty($data)) {
-            $this->name = $data['name'] ?? '';
-            $this->facebook_id = $data['facebook_id'] ?? '';
-            $this->password = $data['password'] ?? '';
-            $this->email = $data['email'] ?? '';
-            $this->avatar = $data['avatar'] ?? '';
-            $this->status = $data['status'] ?? '1';
-            // $this->ins_id = $data['ins_id'] ?? null;
-            $this->upd_id = $data['upd_id'] ?? null;
-            // $this->ins_datetime = $data['ins_datetime'] ?? date('Y-m-d H:i:s');
-            $this->upd_datetime = $data['upd_datetime'] ?? date('Y-m-d H:i:s');
-            $this->del_flag = $data['del_flag'] ?? '0';
+        foreach ($data as $key => $value) {
+            # code...
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
         }
+        $this->upd_id = $data['upd_id'];
+        $this->upd_datetime = $data['upd_datetime'] ?? date('Y-m-d H:i:s');
+        $this->del_flag = $data['del_flag'] ?? '0';
     }
 
     // Getters
@@ -36,14 +30,11 @@ class AdminUpdateRequest
     {
         return $this->name;
     }
-    public function getFacebookId()
-    {
-        return $this->facebook_id;
-    }
-    public function getPassword()
-    {
-        return $this->password;
-    }
+    // public function getFacebookId()
+    // {
+    //     return $this->facebook_id;
+    // }
+
     public function getEmail()
     {
         return $this->email;
@@ -52,9 +43,9 @@ class AdminUpdateRequest
     {
         return $this->avatar;
     }
-    public function getStatus()
+    public function getRoleType()
     {
-        return $this->status;
+        return $this->role_type;
     }
     // public function getInsId()
     // {
@@ -82,14 +73,11 @@ class AdminUpdateRequest
     {
         $this->name = $name;
     }
-    public function setFacebookId($facebook_id)
-    {
-        $this->facebook_id = $facebook_id;
-    }
-    public function setPassword($password)
-    {
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
-    }
+    // public function setFacebookId($facebook_id)
+    // {
+    //     $this->facebook_id = $facebook_id;
+    // }
+
     public function setEmail($email)
     {
         $this->email = $email;
@@ -98,9 +86,9 @@ class AdminUpdateRequest
     {
         $this->avatar = $avatar;
     }
-    public function setStatus($status)
+    public function setRollType($role_type)
     {
-        $this->status = $status;
+        $this->role_type = $role_type;
     }
     // public function setInsId($ins_id)
     // {

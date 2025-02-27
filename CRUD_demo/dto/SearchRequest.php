@@ -1,8 +1,8 @@
 <?php
-class LoginRequest
+class SearchRequest
 {
     private $email;
-    private $password;
+    private $name;
     // Constructor
     public function __construct($data = [])
     {
@@ -15,9 +15,9 @@ class LoginRequest
     }
 
     // Getters
-    public function getPassword()
+    public function getName()
     {
-        return $this->password;
+        return $this->name;
     }
     public function getEmail()
     {
@@ -26,9 +26,9 @@ class LoginRequest
 
 
     // Setters
-    public function setPassword($password)
+    public function setName($name)
     {
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
+        $this->name = $name;
     }
     public function setEmail($email)
     {

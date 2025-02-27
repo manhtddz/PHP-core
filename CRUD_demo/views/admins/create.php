@@ -1,7 +1,3 @@
-<?php
-
-
-?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -13,6 +9,7 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
     <div class="container mt-4">
         <h2 class="mb-3">Thêm Admin</h2>
 
@@ -24,26 +21,28 @@
             <div class="mb-3">
                 <label for="name" class="form-label">Tên</label>
                 <input type="text" class="form-control" id="name" name="name" value="<?= $oldData['name'] ?? ''; ?>">
-                <div><?= $errors['nameError'] ?? ''; ?></div>
+                <div class="text-danger"><?= $errors['nameError'] ?? ''; ?></div>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Mật Khẩu</label>
                 <input type="text" class="form-control" id="password" name="password"
                     value="<?= $oldData['password'] ?? ''; ?>">
+                <div class="text-danger"><?= $errors['passwordError'] ?? ''; ?></div>
+
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="text" class="form-control" id="email" name="email" value="<?= $oldData['email'] ?? ''; ?>">
-                <div><?= $errors['emailError'] ?? ''; ?></div>
+                <div class="text-danger"><?= $errors['emailError'] ?? ''; ?></div>
             </div>
 
             <div class="mb-3">
                 <label for="avatar" class="form-label">Ảnh Đại Diện (URL)</label>
                 <input type="text" class="form-control" id="avatar" name="avatar"
                     value="<?= $oldData['avatar'] ?? ''; ?>">
-                <div><?= $errors['avatarError'] ?? ''; ?></div>
+                <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
             </div>
 
             <div class="mb-3">

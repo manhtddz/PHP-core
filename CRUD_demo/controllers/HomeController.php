@@ -21,7 +21,7 @@ class HomeController extends BaseController
     public function adminIndex(){
         $this->view("logins.admin");
     }
-
+    
     
 }
 ?>

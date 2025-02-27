@@ -17,15 +17,13 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
     <div class="container mt-4">
         <h2 class="mb-3">Danh Sách Người Dùng</h2>
 
         <!-- Nút Thêm Người Dùng -->
         <a href="?controller=user&action=create" class="btn btn-primary mb-3">Thêm Người Dùng</a>
 
-        <div>
-            <?= $_COOKIE['user'] ?>
-        </div>
         <!-- Hiển thị Bảng Người Dùng -->
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
@@ -78,6 +76,7 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

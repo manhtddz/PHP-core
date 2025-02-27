@@ -17,7 +17,7 @@ class User
     // Constructor
     public function __construct($data = [])
     {
-        if (!empty($data)) {
+        // if (!empty($data)) {
             $this->id = $data['id'] ?? null;
             $this->name = $data['name'] ?? '';
             $this->facebook_id = $data['facebook_id'] ?? '';
@@ -30,7 +30,7 @@ class User
             $this->ins_datetime = $data['ins_datetime'] ?? date('Y-m-d H:i:s');
             $this->upd_datetime = $data['upd_datetime'] ?? null;
             $this->del_flag = $data['del_flag'] ?? '0';
-        }
+        // }
     }
 
     // Getters

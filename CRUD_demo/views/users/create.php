@@ -13,6 +13,7 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
     <div class="container mt-4">
         <h2 class="mb-3">Thêm Người Dùng</h2>
 
@@ -39,7 +40,7 @@
                 <label for="password" class="form-label">Mật Khẩu</label>
                 <input type="text" class="form-control" id="password" name="password"
                     value="<?= $oldData['password'] ?? ''; ?>">
-                    <div class="text-danger"><?= $errors['passwordError'] ?? ''; ?></div>
+                <div class="text-danger"><?= $errors['passwordError'] ?? ''; ?></div>
 
             </div>
 
@@ -48,7 +49,7 @@
                 <input type="text" class="form-control" id="email" name="email" value="<?= $oldData['email'] ?? ''; ?>">
                 <div class="text-danger"><?= $errors['emailError'] ?? ''; ?></div>
             </div>
-            
+
 
 
             <div class="mb-3">
@@ -71,7 +72,7 @@
                 <input type="number" class="form-control" id="ins_id" name="ins_id" value="1">
             </div>
 
-            <button type="submit" class="btn btn-success" name="add">Thêm Người Dùng</button>
+            <button type="submit" class="btn btn-success">Thêm Người Dùng</button>
             <a href="?controller=user" class="btn btn-secondary">Quay lại</a>
         </form>
     </div>

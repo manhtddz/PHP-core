@@ -5,6 +5,7 @@ require_once(dirname(__DIR__) . "/controllers/BaseController.php");
 require_once(dirname(__DIR__) . "/dto/UserCreateRequest.php");
 require_once(dirname(__DIR__) . "/dto/UserUpdateRequest.php");
 require_once(dirname(__DIR__) . "/dto/LoginRequest.php");
+require_once(dirname(__DIR__) . "/dto/SearchRequest.php");
 
 require_once(dirname(__DIR__) . "/exceptions/ValidationException.php");
 
@@ -19,34 +20,71 @@ class UserController extends BaseController
     }
     public function index()
     {
+        $this->checkLogin("adminIndex", "admin_id");
+
         $users = $this->userService->getAllUsers();
         // return $users;
         $this->view("users.index", [
             "users" => $users,
         ]);
     }
+    public function searchForm()
+    {
+        session_start();
+        $users = $_SESSION["searched_users"] ?? []; // Lấy danh sách user từ session
+        // print_r($users);
+        unset($_SESSION["searched_users"]); // Xóa session sau khi lấy để tránh hiển thị dữ liệu cũ khi refresh
+
+        $this->view("users.search", ["users" => $users]);
+    }
+
+    public function search()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $req = new SearchRequest($_POST);
+            try {
+                session_start();
+                $users = $this->userService->search($req);
+                $_SESSION['searched_users'] = $users; // Lưu kết quả vào session
+                header('Location: ?controller=user&action=searchForm'); // Redirect để đảm bảo hiển thị đúng UI
+                exit;
+            } catch (Exception $e) {
+                $_SESSION['error'] = $e->getMessage();
+                header('Location: ?controller=user&action=searchForm');
+                exit;
+            }
+        }
+    }
+
     public function login()
     {
         session_start();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $req = new LoginRequest([
-                'password' => $_POST['password'],
-                'email' => $_POST['email'],
-            ]);
+            $req = new LoginRequest($_POST);
             try {
                 $user = $this->userService->login($req);
                 // echo $user->getName();
-                setcookie("user", $user->getName());
-                header('Location: ?controller=user');
+                if ($user) {
+                    $_SESSION['user'] = $user->getName();
+                    $_SESSION['user_id'] = $user->getId();
+                    header("Location: ?controller=user&action=info");
+                }
                 exit;
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 header('Location: ?');
-
             }
-
-
         }
+    }
+
+    public function logout()
+    {
+        session_start();
+
+        session_destroy();
+        header("Location: ?");
+
+        exit();
     }
 
     public function create()
@@ -99,38 +137,29 @@ class UserController extends BaseController
     }
     public function info()
     {
-        if (isset($_GET["id"]) && $_GET['id'] != "" && $_GET['id'] != "0") {
-            $id = $_GET["id"];
-            $user = $this->userService->getUserById($id);
+        $this->checkLogin("index", "user_id");
 
-            $this->view("users.info", [
-                "user" => $user
-            ]);
-        }
+        $id = $_SESSION["user_id"];
+
+        $user = $this->userService->getUserById($id);
+
+        $this->view("users.info", [
+            "user" => $user
+        ]);
+
     }
     public function createUser()
     {
-        session_start(); // Bật session
+        session_start();
 
         try {
-            if (isset($_POST['add'])) {
-                $user = new UserCreateRequest([
-                    'name' => $_POST['name'],
-                    'facebook_id' => $_POST['facebook_id'],
-                    'password' => $_POST['password'],
-                    'email' => $_POST['email'],
-                    'avatar' => $_POST['avatar'],
-                    'status' => 1, // Mặc định là 1 (active)
-                    'ins_id' => $_POST['ins_id'],
-                    // 'upd_id' => null, // Người cập nhật (giả định)
-                    'ins_datetime' => date('Y-m-d H:i:s'), // Ngày tạo
-                    // 'upd_datetime' => null, // Ngày cập nhật (null ban đầu)
-                    'del_flag' => 0 // Không bị xóa
-                ]);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $user = new UserCreateRequest(
+                    $_POST
+                );
 
                 $this->userService->createUser($user); // Gọi service
-                // header("Location: /users");
-                // exit;
+                header("Location: ?controller=user");
             }
         } catch (ValidationException $e) {
             $_SESSION['errors'] = $e->getErrors();
@@ -148,21 +177,11 @@ class UserController extends BaseController
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id = $_POST['id'];
-                $user = new UserUpdateRequest([
-                    'name' => $_POST['name'],
-                    'facebook_id' => $_POST['facebook_id'],
-                    'password' => $_POST['password'],
-                    'email' => $_POST['email'],
-                    'avatar' => $_POST['avatar'],
-                    'status' => $_POST['status'], // Mặc định là 1 (active)
-                    // 'ins_id' => $_POST['ins_id'],
-                    'upd_id' => $_POST['upd_id'], // Người cập nhật (giả định)
-                    // 'ins_datetime' => $_POST['ins_datetime'], // Ngày tạo
-                    'upd_datetime' => date('Y-m-d H:i:s'), // Ngày cập nhật (null ban đầu)
-                    'del_flag' => 0 // Không bị xóa
-                ]);// Tạo object từ request
+                $user = new UserUpdateRequest(
+                    $_POST
+                );// Tạo object từ request
                 $this->userService->updateUser($id, $user);
-
+                header("Location: ?controller=user");
             }
         } catch (ValidationException $e) {
             $_SESSION['errors'] = $e->getErrors();
@@ -187,9 +206,6 @@ class UserController extends BaseController
         } catch (\Throwable $th) {
             $this->redirectError("user ko tồn tại");
         }
-
-
     }
-
 }
 ?>

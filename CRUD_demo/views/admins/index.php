@@ -17,11 +17,13 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
+
     <div class="container mt-4">
-        <h2 class="mb-3">Danh Sách Người Dùng</h2>
+        <h2 class="mb-3">Danh Sách Admin</h2>
 
         <!-- Nút Thêm Người Dùng -->
-        <a href="?controller=admin&action=create" class="btn btn-primary mb-3">Thêm Người Dùng</a>
+        <a href="?controller=admin&action=create" class="btn btn-primary mb-3">Thêm Admin</a>
 
         <!-- Hiển thị Bảng Người Dùng -->
         <table class="table table-bordered table-striped">
@@ -60,7 +62,8 @@
                                 class="btn btn-warning btn-sm">Sửa</a>
 
                             <!-- Nút xóa -->
-                            <form method="POST" action="/admins/delete" style="display:inline-block;">
+                            <form method="POST" action="?controller=admin&action=deleteAdmin&id=<?= $admin->getId() ?>"
+                                style="display:inline-block;">
                                 <input type="hidden" name="id" value="<?= $admin->getId() ?>">
                                 <button type="submit" class="btn btn-danger btn-sm"
                                     onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
@@ -72,6 +75,7 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

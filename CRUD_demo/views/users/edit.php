@@ -18,8 +18,9 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
     <div class="container mt-4">
-        <h2 class="mb-3">Thêm Người Dùng</h2>
+        <h2 class="mb-3">Sửa Người Dùng</h2>
 
 
         <!-- Form thêm người dùng -->
@@ -41,17 +42,11 @@
                 <div class="text-danger"><?= $errors['facebookIdError'] ?? ''; ?></div>
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Mật Khẩu</label>
-                <input type="password" class="form-control" id="password" name="password"
-                    value="<?= $user->getPassword() ?>">
-                <div class="text-danger"><?= $errors['passwordError'] ?? ''; ?></div>
 
-            </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?= $user->getEmail() ?>">
+                <input type="text" class="form-control" id="email" name="email" value="<?= $user->getEmail() ?>">
                 <div class="text-danger"><?= $errors['emailError'] ?? ''; ?></div>
             </div>
 
@@ -71,7 +66,7 @@
 
             <div class="mb-3">
                 <label for="upd_id" class="form-label">Người Sửa (ID)</label>
-                <input type="number" class="form-control" id="upd_id" name="upd_id" value="<?= $user->getUpdId() ?>">
+                <input type="number" class="form-control" id="upd_id" name="upd_id">
             </div>
 
             <button type="submit" class="btn btn-success">Sửa Người Dùng</button>

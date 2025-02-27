@@ -16,4 +16,14 @@ abstract class BaseController
         $errorPage = "error";
         $this->view($errorPage, ["errorMessage" => $errorMessage]);
     }
+    public function checkLogin($route, $checkParam)
+    {
+        session_start();
+
+        if (!isset($_SESSION["{$checkParam}"]) || empty($_SESSION["{$checkParam}"])) {
+            $_SESSION['error'] = "Bạn chưa đăng nhập!";
+            header("Location: ?controller=home&action={$route}");
+            exit;
+        }
+    }
 }
