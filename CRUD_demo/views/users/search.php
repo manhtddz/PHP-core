@@ -9,6 +9,8 @@
 </head>
 
 <body>
+    <?= require_once(dirname(__DIR__) . "/layouts/header.php") ?>
+
     <div class="container mt-5">
         <h2 class="mb-4">Tìm Kiếm Người Dùng</h2>
 

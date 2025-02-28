@@ -1,9 +1,5 @@
 <?php
 
-// require_once("../../controllers/UserController.php");
-// $userController = new UserController();
-// $users = $userController->getAllUsers();
-
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +43,8 @@
                         <td><?= htmlspecialchars($user->getEmail()) ?></td>
                         <td>
                             <?php if ($user->getAvatar()): ?>
-                                <img src="<?= htmlspecialchars($user->getAvatar()) ?>" width="50" height="50"
+
+                                <img src="uploads/images/avatar/<?= $user->getAvatar() ?>" width="50" height="50"
                                     class="rounded-circle" title="<?= $user->getAvatar() ?>">
                             <?php else: ?>
                                 <span class="text-muted">Không có ảnh</span>
@@ -75,6 +72,28 @@
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item <?= $page == 1 ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?controller=user&page=<?= $page - 1 ?>">«
+                                Trước</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                <a class="page-link" href="?controller=user&page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= $page == $totalPages ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?controller=user&page=<?= $page + 1 ?>">Sau
+                                »</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
+
         </table>
 
     </div>

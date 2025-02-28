@@ -1,15 +1,18 @@
 <?php
 require_once(dirname(__DIR__) . "/repositories/AdminRepository.php");
 require_once(dirname(__DIR__) . "/utils/Validation.php");
+require_once(dirname(__DIR__) . "/utils/FileHelper.php");
 
 // require_once '../dto/UserRequest.php';
 
 class AdminService
 {
     private $adminRepo;
+    private $fileHelper;
     public function __construct()
     {
         $this->adminRepo = new AdminRepository();
+        $this->fileHelper = new FileHelper();
     }
     public function login(LoginRequest $request)
     {
@@ -27,9 +30,9 @@ class AdminService
     {
         return $this->adminRepo->findById($id);
     }
-    public function getAllAdmins()
+    public function getAllAdmins($page)
     {
-        return $this->adminRepo->getAll();
+        return $this->adminRepo->getAll(pageNumber: $page);
     }
 
     public function search(SearchRequest $request)
@@ -42,35 +45,41 @@ class AdminService
     {
         $data = $admin->toArray();
         $errors = [];
-        if (strlen(empty($data['password'])) || !Validation::validatePassword(trim($data['password']))) {
+        if (empty($data['password']) || !Validation::validatePassword(trim($data['password']))) {
             $errors['passwordError'] = "Mật khẩu ko hợp lệ";
         } else {
             $data["password"] = password_hash(trim($data['password']), PASSWORD_DEFAULT);
         }
-        if (strlen(empty($data['name'])) || strlen(trim($data['name'])) > 128) {
+        if (empty($data['name']) || strlen(trim($data['name'])) > 128) {
             $errors['nameError'] = "Tên phải từ 1 đến 128 ký tự";
         }
-        if (strlen(empty($data['email'])) || strlen(trim($data['email'])) > 128 || !Validation::validateEmail(trim($data['email']))) {
+        if (empty($data['email']) || strlen(trim($data['email'])) > 128 || !Validation::validateEmail(trim($data['email']))) {
             $errors['emailError'] = "Email ko hợp lệ";
         } else if ($this->adminRepo->existedEmail(trim($data['email']))) {
             $errors['emailError'] = "Email đã tồn tại";
         }
-        if (strlen(empty($data['avatar'])) || strlen(trim($data['avatar'])) > 128) {
-            $errors['avatarError'] = "Avatar phải từ 1 đến 128 ký tự";
+        if (empty($data['avatar']) || strlen(trim($data['avatar'])) > 128) {
+            $errors['avatarError'] = "Chưa chọn file hoặc tên file quá dài";
+        } else if (!$this->fileHelper->isImageFile($data['avatar'])) {
+            $errors['avatarError'] = "Chọn sai loại file";
         }
         if (!empty($errors)) {
             throw new ValidationException($errors);
         }
+        $this->fileHelper->uploadFile($data['avatar']);
         return $this->adminRepo->create($data);
     }
     public function updateAdmin($id, AdminUpdateRequest $admin)
     {
         $data = $admin->toArray();
         $errors = [];
-        if (strlen(empty($data['name'])) || strlen(trim($data['name'])) > 128) {
+        if (empty($data['name']) || strlen(trim($data['name'])) > 128) {
             $errors['nameError'] = "Tên phải từ 1 đến 128 ký tự";
         }
-        if (strlen(empty($data['email'])) || strlen(trim($data['email'])) > 128 || !Validation::validateEmail(trim($data['email']))) {
+        if (
+            empty($data['email']) || strlen(trim($data['email'])) > 128 ||
+            !Validation::validateEmail(trim($data['email']))
+        ) {
             $errors['emailError'] = "Email ko hợp lệ";
         } else {
             $checkedId = $this->adminRepo->existedEmail(trim($data['email']));
@@ -78,12 +87,20 @@ class AdminService
                 $errors['emailError'] = "Email đã tồn tại";
             }
         }
-        if (strlen(empty($data['avatar'])) || strlen(trim($data['avatar'])) > 128) {
+        if (empty($data['avatar']) || strlen(trim($data['avatar'])) > 128) {
             $errors['avatarError'] = "Avatar phải từ 1 đến 128 ký tự";
+            $this->fileHelper->deleteFile($data['avatar']);
+        } else if (!$this->fileHelper->isImageFile($data['avatar'])) {
+            $errors['avatarError'] = "Chọn sai loại file";
         }
         if (!empty($errors)) {
             throw new ValidationException($errors);
         }
+        if ($data['avatar'] !== $_POST['current_avatar']) {
+            $this->fileHelper->uploadFile($data['avatar']);
+            $this->fileHelper->deleteFile($_POST['current_avatar']);
+        }
+
         return $this->adminRepo->update($id, $data);
     }
     public function deleteAdmin($id)

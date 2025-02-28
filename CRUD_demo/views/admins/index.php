@@ -46,7 +46,8 @@
                         <td><?= htmlspecialchars($admin->getEmail()) ?></td>
                         <td>
                             <?php if ($admin->getAvatar()): ?>
-                                <img src="<?= htmlspecialchars($admin->getAvatar()) ?>" width="50" height="50"
+
+                                <img src="uploads/images/avatar/<?= $admin->getAvatar() ?>" width="50" height="50"
                                     class="rounded-circle" title="<?= $admin->getAvatar() ?>">
                             <?php else: ?>
                                 <span class="text-muted">Không có ảnh</span>
@@ -74,6 +75,27 @@
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+            <?php if ($totalPages > 1): ?>
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item <?= $page == 1 ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?controller=admin&page=<?= $page - 1 ?>">«
+                                Trước</a>
+                        </li>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                <a class="page-link" href="?controller=admin&page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <li class="page-item <?= $page == $totalPages ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?controller=admin&page=<?= $page + 1 ?>">Sau
+                                »</a>
+                        </li>
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </table>
 
     </div>

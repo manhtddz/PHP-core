@@ -3,7 +3,6 @@ class SearchRequest
 {
     private $email;
     private $name;
-    // Constructor
     public function __construct($data = [])
     {
         foreach ($data as $key => $value) {

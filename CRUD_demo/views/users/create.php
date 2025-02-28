@@ -1,6 +1,5 @@
 <?php
 
-
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -30,13 +29,6 @@
             </div>
 
             <div class="mb-3">
-                <label for="facebook_id" class="form-label">Facebook ID</label>
-                <input type="text" class="form-control" id="facebook_id" name="facebook_id"
-                    value="<?= $oldData['facebook_id'] ?? ''; ?>">
-                <div class="text-danger"><?= $errors['facebookIdError'] ?? ''; ?></div>
-            </div>
-
-            <div class="mb-3">
                 <label for="password" class="form-label">Mật Khẩu</label>
                 <input type="text" class="form-control" id="password" name="password"
                     value="<?= $oldData['password'] ?? ''; ?>">
@@ -50,13 +42,11 @@
                 <div class="text-danger"><?= $errors['emailError'] ?? ''; ?></div>
             </div>
 
-
-
             <div class="mb-3">
-                <label for="avatar" class="form-label">Ảnh Đại Diện (URL)</label>
-                <input type="text" class="form-control" id="avatar" name="avatar"
-                    value="<?= $oldData['avatar'] ?? ''; ?>">
+                <label for="new_avatar">Chọn file để upload avatar:</label>
+                <input type="file" name="new_avatar" id="new_avatar">
                 <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
+
             </div>
 
             <div class="mb-3">
@@ -68,8 +58,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="ins_id" class="form-label">Người thêm (ID)</label>
-                <input type="number" class="form-control" id="ins_id" name="ins_id" value="1">
+                <!-- <label for="ins_id" class="form-label">Người thêm (ID)</label> -->
+                <input type="hidden" class="form-control" id="ins_id" name="ins_id"
+                    value="<?= $_SESSION['admin_id'] ?>">
             </div>
 
             <button type="submit" class="btn btn-success">Thêm Người Dùng</button>

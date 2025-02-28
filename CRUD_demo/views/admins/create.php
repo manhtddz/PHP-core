@@ -14,7 +14,7 @@
         <h2 class="mb-3">Thêm Admin</h2>
 
 
-        <form action="?controller=admin&action=createAdmin" method="POST">
+        <form action="?controller=admin&action=createAdmin" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
 
             </div>
@@ -39,19 +39,20 @@
             </div>
 
             <div class="mb-3">
-                <label for="avatar" class="form-label">Ảnh Đại Diện (URL)</label>
-                <input type="text" class="form-control" id="avatar" name="avatar"
-                    value="<?= $oldData['avatar'] ?? ''; ?>">
+                <label for="new_avatar">Chọn file để upload avatar:</label>
+                <input type="file" name="new_avatar" id="new_avatar">
                 <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
+
             </div>
 
             <div class="mb-3">
-                <label for="ins_id" class="form-label">Người thêm (ID)</label>
-                <input type="number" class="form-control" id="ins_id" name="ins_id" value="1">
+                <!-- <label for="ins_id" class="form-label">Người thêm (ID)</label> -->
+                <input type="hidden" class="form-control" id="ins_id" name="ins_id"
+                    value="<?= $_SESSION['admin_id'] ?>">
             </div>
 
             <button type="submit" class="btn btn-success" name="add">Thêm Admin</button>
-            <a href="?controller=admin&action=index" class="btn btn-secondary">Quay lại</a>
+            <a href="?controller=admin" class="btn btn-secondary">Quay lại</a>
         </form>
     </div>
 

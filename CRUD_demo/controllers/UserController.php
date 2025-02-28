@@ -22,10 +22,14 @@ class UserController extends BaseController
     {
         $this->checkLogin("adminIndex", "admin_id");
 
-        $users = $this->userService->getAllUsers();
+        $page = max(1, intval($_GET["page"] ?? 1));
+
+        list($users, $totalPages) = $this->userService->getAllUsers($page);
         // return $users;
         $this->view("users.index", [
             "users" => $users,
+            "totalPages" => $totalPages,
+            "page" => $page
         ]);
     }
     public function searchForm()
@@ -33,20 +37,21 @@ class UserController extends BaseController
         session_start();
         $users = $_SESSION["searched_users"] ?? []; // Lấy danh sách user từ session
         // print_r($users);
-        unset($_SESSION["searched_users"]); // Xóa session sau khi lấy để tránh hiển thị dữ liệu cũ khi refresh
+        unset($_SESSION["searched_users"]);
 
         $this->view("users.search", ["users" => $users]);
     }
 
     public function search()
     {
+        session_start();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $req = new SearchRequest($_POST);
+            session_start();
             try {
-                session_start();
                 $users = $this->userService->search($req);
                 $_SESSION['searched_users'] = $users; // Lưu kết quả vào session
-                header('Location: ?controller=user&action=searchForm'); // Redirect để đảm bảo hiển thị đúng UI
+                header('Location: ?controller=user&action=searchForm');
                 exit;
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
@@ -154,6 +159,15 @@ class UserController extends BaseController
 
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0) {
+                    $fileName = time() . "_" . $_FILES["new_avatar"]["name"];
+                    $_POST['avatar'] = $fileName;
+                } else {    
+                    $_POST['avatar'] = '';
+                }
+                $_POST = array_map(function ($value) {
+                    return htmlspecialchars(stripslashes(trim($value)));
+                }, $_POST);
                 $user = new UserCreateRequest(
                     $_POST
                 );
@@ -176,6 +190,15 @@ class UserController extends BaseController
 
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0) {
+                    $newFile = time() . "_" . $_FILES["new_avatar"]["name"];
+                    $_POST['avatar'] = $newFile;
+                } else {
+                    $_POST['avatar'] = $_POST['current_avatar'];
+                }
+                $_POST = array_map(function ($value) {
+                    return htmlspecialchars(stripslashes(trim($value)));
+                }, $_POST);
                 $id = $_POST['id'];
                 $user = new UserUpdateRequest(
                     $_POST

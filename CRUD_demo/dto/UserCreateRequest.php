@@ -2,7 +2,6 @@
 class UserCreateRequest
 {
     private $name;
-    private $facebook_id;
     private $password;
     private $email;
     private $avatar;
@@ -41,10 +40,6 @@ class UserCreateRequest
     public function getName()
     {
         return $this->name;
-    }
-    public function getFacebookId()
-    {
-        return $this->facebook_id;
     }
     public function getPassword()
     {
@@ -87,10 +82,6 @@ class UserCreateRequest
     public function setName($name)
     {
         $this->name = $name;
-    }
-    public function setFacebookId($facebook_id)
-    {
-        $this->facebook_id = $facebook_id;
     }
     public function setPassword($password)
     {

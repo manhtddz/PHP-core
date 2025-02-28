@@ -15,13 +15,15 @@ class HomeController extends BaseController
     {
         // $this->userService = new UserService();
     }
-    public function index(){
+    public function index()
+    {
         $this->view("logins.user");
     }
-    public function adminIndex(){
+    public function adminIndex()
+    {
         $this->view("logins.admin");
     }
-    
-    
+
+
 }
 ?>

@@ -17,14 +17,19 @@ class AdminController extends BaseController
     public function __construct()
     {
         $this->adminService = new AdminService();
+
     }
     public function index()
     {
         $this->checkLogin("adminIndex", "admin_id");
 
-        $admins = $this->adminService->getAllAdmins();
+        $page = max(1, intval($_GET["page"] ?? 1));
+
+        list($admins, $totalPages) = $this->adminService->getAllAdmins($page);
         $this->view("admins.index", [
             "admins" => $admins,
+            "totalPages" => $totalPages,
+            "page" => $page
         ]);
     }
 
@@ -40,10 +45,10 @@ class AdminController extends BaseController
 
     public function search()
     {
+        session_start();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $req = new SearchRequest($_POST);
             try {
-                session_start();
                 $admins = $this->adminService->search($req);
                 $_SESSION['searched_admins'] = $admins; // Lưu kết quả vào session
                 header('Location: ?controller=admin&action=searchForm'); // Redirect để đảm bảo hiển thị đúng UI
@@ -67,13 +72,12 @@ class AdminController extends BaseController
                     $_SESSION['admin'] = $admin->getName();
                     $_SESSION['admin_id'] = $admin->getId();
                     header('Location: ?controller=admin');
-                    print_r($admin->getName());
                 }
 
                 exit;
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
-                header('Location: ?');
+                header('Location: ?action=adminIndex');
 
             }
         }
@@ -132,7 +136,17 @@ class AdminController extends BaseController
         session_start(); // Bật session
 
         try {
-            if (isset($_POST['add'])) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0) {
+                    $fileName = time() . "_" . $_FILES["new_avatar"]["name"];
+                    $_POST['avatar'] = $fileName;
+                } else {
+                    $_POST['avatar'] = '';
+                }
+                $_POST = array_map(function ($value) {
+                    return htmlspecialchars(stripslashes(trim($value)));
+                }, $_POST);
+
                 $admin = new AdminCreateRequest($_POST);
 
                 $this->adminService->createAdmin($admin); // Gọi service
@@ -153,6 +167,15 @@ class AdminController extends BaseController
 
         try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0) {
+                    $newFile = time() . "_" . $_FILES["new_avatar"]["name"];
+                    $_POST['avatar'] = $newFile;
+                } else {
+                    $_POST['avatar'] = $_POST['current_avatar'];
+                }
+                $_POST = array_map(function ($value) {
+                    return htmlspecialchars(stripslashes(trim($value)));
+                }, $_POST);
                 $id = $_POST['id'];
                 $admin = new AdminUpdateRequest($_POST);// Tạo object từ request
                 $this->adminService->updateAdmin($id, $admin);

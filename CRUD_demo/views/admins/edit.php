@@ -26,7 +26,7 @@
         <?php if (isset($error)): ?>
             <div><?= $error ?></div>
         <?php endif; ?>
-        <form action="?controller=admin&action=updateAdmin" method="POST">
+        <form action="?controller=admin&action=updateAdmin" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <input type="hidden" class="form-control" id="id" name="id" value="<?= $admin->getId() ?>">
             </div>
@@ -45,8 +45,15 @@
             </div>
 
             <div class="mb-3">
-                <label for="avatar" class="form-label">Ảnh Đại Diện (URL)</label>
-                <input type="text" class="form-control" id="avatar" name="avatar" value="<?= $admin->getAvatar() ?>">
+                <input type="hidden" name="current_avatar" value="<?= $admin->getAvatar() ?>">
+
+                <!-- Hiển thị ảnh cũ -->
+                <?php if (!empty($admin->getAvatar())): ?>
+                    <img src="uploads/images/avatar/<?= $admin->getAvatar() ?>" width="150"><br>
+                <?php endif; ?>
+
+                <!-- Chọn ảnh mới -->
+                <input type="file" name="new_avatar">
                 <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
 
             </div>
@@ -60,12 +67,13 @@
             </div>
 
             <div class="mb-3">
-                <label for="upd_id" class="form-label">Người Sửa (ID)</label>
-                <input type="number" class="form-control" id="upd_id" name="upd_id">
+                <!-- <label for="upd_id" class="form-label">Người Sửa (ID)</label> -->
+                <input type="hidden" class="form-control" id="upd_id" name="upd_id"
+                    value="<?= $_SESSION['admin_id'] ?>">
             </div>
 
             <button type="submit" class="btn btn-success">Sửa Admin</button>
-            <a href="?controller=admin&action=index" class="btn btn-secondary">Quay lại</a>
+            <a href="?controller=admin" class="btn btn-secondary">Quay lại</a>
         </form>
     </div>
 

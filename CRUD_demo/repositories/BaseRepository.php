@@ -17,12 +17,20 @@ abstract class BaseRepository implements IRepository
     }
 
     //thêm attribute, limit, offset
-    public function getAll(int $limit = 10, int $pageNumber = 1)
+    public function getAll(int $limit = 6, int $pageNumber = 1)
     {
         try {
+            $sql = "SELECT * FROM {$this->table} WHERE del_flag = 0";
             $offset = ($pageNumber - 1) * $limit;
-            $results = $this->db->query("SELECT * FROM {$this->table} WHERE del_flag = 0 LIMIT $limit OFFSET $offset")->fetchAll(PDO::FETCH_ASSOC);
-            return array_map(fn($data) => new $this->model($data), $results);
+            $countSql = str_replace("SELECT *", "SELECT COUNT(*) as total", $sql);
+
+            $countStmt = $this->db->prepare($countSql);
+            $countStmt->execute();
+            $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            $totalPages = ceil($totalRecords / $limit);
+
+            $results = $this->db->query($sql . " LIMIT $limit OFFSET $offset")->fetchAll(PDO::FETCH_ASSOC);
+            return [array_map(fn($data) => new $this->model($data), $results), $totalPages];
 
         } catch (Throwable $e) {
             echo $e->getMessage();
@@ -105,7 +113,7 @@ abstract class BaseRepository implements IRepository
     {
         try {
             $fields = implode(", ", array_map(fn($key) => "{$key} = :{$key}", array_keys($data)));
-            print ($fields);
+            // print ($fields);
 
             $stmt = $this->db->prepare("UPDATE {$this->table} SET {$fields} WHERE id = :id");
             $data['id'] = $id;

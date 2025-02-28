@@ -2,8 +2,8 @@
 class UserUpdateRequest
 {
     private $name;
-    private $facebook_id;
-    // private $password;
+    // private $facebook_id;
+    private $password;
     private $email;
     private $avatar;
     private $status;
@@ -18,7 +18,7 @@ class UserUpdateRequest
     {
         // if (!empty($data)) {
         //     $this->name = $data['name'] ?? '';
-        //     $this->facebook_id = $data['facebook_id'] ?? '';
+        // $this->facebook_id = $data['facebook_id'] ?? '';
         //     $this->password = $data['password'] ?? '';
         //     $this->email = $data['email'] ?? '';
         //     $this->avatar = $data['avatar'] ?? '';
@@ -53,10 +53,10 @@ class UserUpdateRequest
     {
         return $this->name;
     }
-    public function getFacebookId()
-    {
-        return $this->facebook_id;
-    }
+    // public function getFacebookId()
+    // {
+    //     return $this->facebook_id;
+    // }
     // public function getPassword()
     // {
     //     return $this->password;
@@ -99,10 +99,10 @@ class UserUpdateRequest
     {
         $this->name = $name;
     }
-    public function setFacebookId($facebook_id)
-    {
-        $this->facebook_id = $facebook_id;
-    }
+    // public function setFacebookId($facebook_id)
+    // {
+    //     $this->facebook_id = $facebook_id;
+    // }
     // public function setPassword($password)
     // {
     //     $this->password = password_hash($password, PASSWORD_DEFAULT);
