@@ -1,18 +1,17 @@
 <?php
 require_once(dirname(__DIR__) . "/repositories/AdminRepository.php");
 require_once(dirname(__DIR__) . "/utils/Validation.php");
-require_once(dirname(__DIR__) . "/utils/FileHelper.php");
+require_once(dirname(__DIR__) . "/services/BaseService.php");
 
 // require_once '../dto/UserRequest.php';
 
-class AdminService
+class AdminService extends BaseService
 {
     private $adminRepo;
-    private $fileHelper;
     public function __construct()
     {
+        parent::__construct();
         $this->adminRepo = new AdminRepository();
-        $this->fileHelper = new FileHelper();
     }
     public function login(LoginRequest $request)
     {
@@ -28,17 +27,21 @@ class AdminService
     }
     public function getAdminById($id)
     {
-        return $this->adminRepo->findById($id);
+        $admin = $this->adminRepo->findById($id);
+        if (empty($admin)) {
+            throw new Exception("Admin không tồn tại");
+        }
+        return $admin;
     }
     public function getAllAdmins($page)
     {
         return $this->adminRepo->getAll(pageNumber: $page);
     }
 
-    public function search(SearchRequest $request)
+    public function search(SearchRequest $request, int $page)
     {
         $data = $request->toArray();
-        return $this->adminRepo->search($data);
+        return $this->adminRepo->search($data, pageNumber: $page);
     }
 
     public function createAdmin(AdminCreateRequest $admin)
@@ -105,9 +108,9 @@ class AdminService
     }
     public function deleteAdmin($id)
     {
-        $user = $this->adminRepo->findById($id);
-        if (empty($user)) {
-            throw new Exception("not found");
+        $admin = $this->adminRepo->findById($id);
+        if (empty($admin)) {
+            throw new Exception("Admin không tồn tại");
         }
         return $this->adminRepo->delete($id);
     }

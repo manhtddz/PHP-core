@@ -18,7 +18,7 @@
 
 
         <!-- Form thêm người dùng -->
-        <form action="?controller=user&action=createUser" method="POST">
+        <form action="?controller=user&action=createUser" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
 
             </div>

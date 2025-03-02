@@ -13,7 +13,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="?controller=user">Tất cả</a></li>
-                        <li><a class="dropdown-item" href="?controller=user&action=searchForm">Search</a></li>
+                        <li><a class="dropdown-item" href="?controller=user&action=search">Search</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -27,7 +27,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="?controller=admin">Tất cả</a></li>
-                        <li><a class="dropdown-item" href="?controller=admin&action=searchForm">Search</a></li>
+                        <li><a class="dropdown-item" href="?controller=admin&action=search">Search</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>

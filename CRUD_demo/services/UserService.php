@@ -1,21 +1,19 @@
 <?php
 require_once(dirname(__DIR__) . "/repositories/UserRepository.php");
 require_once(dirname(__DIR__) . "/utils/Validation.php");
-require_once(dirname(__DIR__) . "/utils/FileHelper.php");
+require_once(dirname(__DIR__) . "/services/BaseService.php");
 
 
 // require_once '../dto/UserRequest.php';
 
-class UserService
+class UserService extends BaseService
 {
     private $userRepo;
-    private $fileHelper;
 
     public function __construct()
     {
+        parent::__construct();
         $this->userRepo = new UserRepository();
-        $this->fileHelper = new FileHelper();
-
     }
 
     public function login(LoginRequest $request)
@@ -33,17 +31,21 @@ class UserService
     }
     public function getUserById($id)
     {
-        return $this->userRepo->findById($id);
+        $user = $this->userRepo->findById($id);
+        if (empty($user)) {
+            throw new Exception("User không tồn tại");
+        }
+        return $user;
     }
     public function getAllUsers($pageNumber)
     {
         return $this->userRepo->getAll(pageNumber: $pageNumber);
     }
 
-    public function search(SearchRequest $request)
+    public function search(SearchRequest $request,$page)
     {
         $data = $request->toArray();
-        return $this->userRepo->search($data);
+        return $this->userRepo->search($data, pageNumber: $page);
     }
 
     public function createUser(UserCreateRequest $user)
@@ -65,7 +67,8 @@ class UserService
         }
         if (empty($data['avatar']) || strlen(trim($data['avatar'])) > 128) {
             $errors['avatarError'] = "Chưa chọn file hoặc tên file quá dài";
-        } else if (!$this->fileHelper->isImageFile($data['avatar'])) {
+        }
+        if (!$this->fileHelper->isImageFile($data['avatar'])) {
             $errors['avatarError'] = "Chọn sai loại file";
         }
         if (!empty($errors)) {
@@ -93,7 +96,8 @@ class UserService
         if (empty($data['avatar']) || strlen(trim($data['avatar'])) > 128) {
             $errors['avatarError'] = "Avatar phải từ 1 đến 128 ký tự";
             $this->fileHelper->deleteFile($data['avatar']);
-        } else if (!$this->fileHelper->isImageFile($data['avatar'])) {
+        }
+        if (!$this->fileHelper->isImageFile($data['avatar'])) {
             $errors['avatarError'] = "Chọn sai loại file";
         }
         if (!empty($errors)) {
@@ -109,7 +113,7 @@ class UserService
     {
         $user = $this->userRepo->findById($id);
         if (empty($user)) {
-            throw new Exception("not found");
+            throw new Exception("User ko tồn tại");
         }
         return $this->userRepo->delete($id);
     }

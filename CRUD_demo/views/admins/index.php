@@ -25,6 +25,7 @@
         <!-- Nút Thêm Người Dùng -->
         <a href="?controller=admin&action=create" class="btn btn-primary mb-3">Thêm Admin</a>
 
+        <div class="text-danger"><?= $_SESSION['error'] ?? ''; ?></div>
         <!-- Hiển thị Bảng Người Dùng -->
         <table class="table table-bordered table-striped">
             <thead class="table-dark">

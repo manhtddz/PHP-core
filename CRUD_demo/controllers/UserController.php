@@ -6,143 +6,104 @@ require_once(dirname(__DIR__) . "/dto/UserCreateRequest.php");
 require_once(dirname(__DIR__) . "/dto/UserUpdateRequest.php");
 require_once(dirname(__DIR__) . "/dto/LoginRequest.php");
 require_once(dirname(__DIR__) . "/dto/SearchRequest.php");
-
 require_once(dirname(__DIR__) . "/exceptions/ValidationException.php");
-
-// require_once '../dto/UserRequest.php';
 
 class UserController extends BaseController
 {
     private $userService;
     public function __construct()
     {
+        parent::__construct();
         $this->userService = new UserService();
     }
+
     public function index()
     {
-        $this->checkLogin("adminIndex", "admin_id");
-
+        $this->checkLogin("adminIndex", "admin_id", "adminIndex");
         $page = max(1, intval($_GET["page"] ?? 1));
-
         list($users, $totalPages) = $this->userService->getAllUsers($page);
-        // return $users;
-        $this->view("users.index", [
-            "users" => $users,
-            "totalPages" => $totalPages,
-            "page" => $page
-        ]);
-    }
-    public function searchForm()
-    {
-        session_start();
-        $users = $_SESSION["searched_users"] ?? []; // Lấy danh sách user từ session
-        // print_r($users);
-        unset($_SESSION["searched_users"]);
-
-        $this->view("users.search", ["users" => $users]);
+        $this->view("users.index", compact("users", "totalPages", "page"));
     }
 
     public function search()
     {
-        session_start();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $req = new SearchRequest($_POST);
-            session_start();
-            try {
-                $users = $this->userService->search($req);
-                $_SESSION['searched_users'] = $users; // Lưu kết quả vào session
-                header('Location: ?controller=user&action=searchForm');
-                exit;
-            } catch (Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: ?controller=user&action=searchForm');
-                exit;
-            }
+        // Lấy giá trị từ GET
+        $name = isset($_GET['name']) ? $this->cleanOneData($_GET['name']) : '';
+        $email = isset($_GET['email']) ? $this->cleanOneData($_GET['email']) : '';
+        $results = [];
+
+        // Nếu có dữ liệu nhập vào, thực hiện tìm kiếm
+        if (!empty($name) || !empty($email)) {
+            $searchParams = [];
+            if (!empty($name))
+                $searchParams['name'] = $name;
+            if (!empty($email))
+                $searchParams['email'] = $email;
+            $page = max(1, intval($_GET["page"] ?? 1));
+            list($users, $totalPages) = $this->userService->search(new SearchRequest($searchParams), $page);
+            $this->view("users.search", compact("users", "totalPages", "page", "name", "email"));
+            exit();
         }
+        $this->view("users.search");
+        exit();
     }
 
     public function login()
     {
-        session_start();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $req = new LoginRequest($_POST);
             try {
+                $req = new LoginRequest($_POST);
                 $user = $this->userService->login($req);
-                // echo $user->getName();
                 if ($user) {
                     $_SESSION['user'] = $user->getName();
                     $_SESSION['user_id'] = $user->getId();
-                    header("Location: ?controller=user&action=info");
+                    header('Location: ?controller=user&action=info');
+                    exit;
                 }
-                exit;
             } catch (Exception $e) {
-                $_SESSION['error'] = $e->getMessage();
-                header('Location: ?');
+                $this->redirectWithError('?', $e->getMessage());
             }
         }
     }
 
     public function logout()
     {
-        session_start();
-
         session_destroy();
         header("Location: ?");
-
-        exit();
+        exit;
     }
 
     public function create()
     {
-        session_start();
-
-        $errors = $_SESSION['errors'] ?? [];
-        $oldData = $_SESSION['oldData'] ?? [];
-
-        unset($_SESSION['errors']);
-        unset($_SESSION['oldData']);
-
         $this->view('users.create', [
-            'errors' => $errors,
-            'oldData' => $oldData
+            'errors' => $_SESSION['errors'] ?? [],
+            'oldData' => $_SESSION['oldData'] ?? []
         ]);
+        unset($_SESSION['errors'], $_SESSION['oldData']);
     }
 
     public function edit()
     {
-        if (!isset($_GET["id"]) || empty($_GET['id']) || $_GET['id'] == "0") {
-            $this->redirectError("ko có id");
-            exit;
+        try {
+
+            $id = $_GET["id"] ?? "0";
+            if (empty($id) || $id == "0" || !filter_var($id, FILTER_VALIDATE_INT))
+                $this->redirectWithError("?controller=admin", "Không có ID hợp lệ");
+
+            $user = $this->userService->getUserById($id);
+
+            $this->view("users.edit", [
+                "user" => $user,
+                "errors" => $_SESSION['errors'] ?? []
+            ]);
+            unset($_SESSION['errors']);
+        } catch (Exception $e) {
+            $this->redirectWithError("?controller=user", $e->getMessage());
         }
-        session_start();
-
-        $id = $_GET["id"];
-        $errors = $_SESSION['errors'] ?? [];
-        // $oldData = $_SESSION['oldData'] ?? null;
-
-        unset($_SESSION['errors']);
-        // unset($_SESSION['oldData']);
-
-
-        $user = $this->userService->getUserById($id);
-        if (!$user) {
-            // Nếu user không tồn tại, chuyển hướng về danh sách
-            $this->redirectError("user ko tồn tại");
-            exit;
-        }
-        // if ($oldData) {
-        //     $user = (object) array_merge((array) $user, $oldData);
-        //     // ép user thành mảng, sau đó dồn data từ ở oldData vào user, sau đó lại ép kiểu toàn bộ data vừa xử lí thành obj
-        // }
-        $this->view("users.edit", [
-            "user" => $user,
-            "errors" => $errors
-        ]);
-
     }
     public function info()
     {
-        $this->checkLogin("index", "user_id");
+        $this->checkLogin("index", "user_id", "index" ?? "");
 
         $id = $_SESSION["user_id"];
 
@@ -153,81 +114,56 @@ class UserController extends BaseController
         ]);
 
     }
+
     public function createUser()
     {
-        session_start();
-
-        try {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0) {
-                    $fileName = time() . "_" . $_FILES["new_avatar"]["name"];
-                    $_POST['avatar'] = $fileName;
-                } else {    
-                    $_POST['avatar'] = '';
-                }
-                $_POST = array_map(function ($value) {
-                    return htmlspecialchars(stripslashes(trim($value)));
-                }, $_POST);
-                $user = new UserCreateRequest(
-                    $_POST
-                );
-
-                $this->userService->createUser($user); // Gọi service
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $_POST = $this->cleanInputData($_POST);
+                $_POST['avatar'] = isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0
+                    ? time() . "_" . $_FILES["new_avatar"]["name"]
+                    : '';
+                $this->userService->createUser(new UserCreateRequest($_POST));
                 header("Location: ?controller=user");
+            } catch (ValidationException $e) {
+                $_SESSION['errors'] = $e->getErrors();
+                $_SESSION['oldData'] = $_POST;
+                $this->redirectWithError("?controller=user&action=create");
             }
-        } catch (ValidationException $e) {
-            $_SESSION['errors'] = $e->getErrors();
-            $_SESSION['oldData'] = $_POST;
-
-            header("Location: ?controller=user&action=create");
-            exit;
-
         }
     }
+
     public function updateUser()
     {
-        session_start(); // Bật session
-
-        try {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0) {
-                    $newFile = time() . "_" . $_FILES["new_avatar"]["name"];
-                    $_POST['avatar'] = $newFile;
-                } else {
-                    $_POST['avatar'] = $_POST['current_avatar'];
-                }
-                $_POST = array_map(function ($value) {
-                    return htmlspecialchars(stripslashes(trim($value)));
-                }, $_POST);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $_POST = $this->cleanInputData($_POST);
+                $_POST['avatar'] = isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0
+                    ? time() . "_" . $_FILES["new_avatar"]["name"]
+                    : $_POST['current_avatar'];
                 $id = $_POST['id'];
-                $user = new UserUpdateRequest(
-                    $_POST
-                );// Tạo object từ request
-                $this->userService->updateUser($id, $user);
+                $this->userService->updateUser($id, new UserUpdateRequest($_POST));
                 header("Location: ?controller=user");
+            } catch (ValidationException $e) {
+                $_SESSION['errors'] = $e->getErrors();
+                $_SESSION['oldData'] = $_POST;
+                $this->redirectWithError("?controller=user&action=edit&id=$id");
             }
-        } catch (ValidationException $e) {
-            $_SESSION['errors'] = $e->getErrors();
-            $_SESSION['oldData'] = $_POST;
-
-            header("Location: ?controller=user&action=edit&id=" . $id);
-            exit;
         }
-
     }
+
     public function deleteUser()
     {
-        if (!isset($_GET["id"]) || empty($_GET['id']) || $_GET['id'] == "0") {
-            $this->redirectError("ko có id");
-            exit;
-        }
+        $id = $_GET["id"] ?? "0";
+        if (empty($id) || $id == "0" || !filter_var($id, FILTER_VALIDATE_INT))
+            $this->redirectWithError("?controller=user", "Không có ID hợp lệ");
+
         try {
-            $id = $_GET["id"];
             $this->userService->deleteUser($id);
             header("Location: ?controller=user");
             exit;
-        } catch (\Throwable $th) {
-            $this->redirectError("user ko tồn tại");
+        } catch (Exception $e) {
+            $this->redirectWithError("?controller=user", $e->getMessage());
         }
     }
 }

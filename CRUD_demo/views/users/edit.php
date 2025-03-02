@@ -24,7 +24,7 @@
 
 
         <!-- Form thêm người dùng -->
-        <form action="?controller=user&action=updateUser" method="POST">
+        <form action="?controller=user&action=updateUser" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <!-- <label for="name" class="form-label">Tên</label> -->
                 <input type="hidden" class="form-control" id="id" name="id" value="<?= $user->getId() ?>">

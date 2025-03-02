@@ -61,9 +61,10 @@ abstract class BaseRepository implements IRepository
             return null;
         }
     }
-    public function search(array $data)
+    public function search(array $data, int $limit = 6, int $pageNumber = 1)
     {
         $sql = "SELECT * FROM {$this->table} WHERE del_flag = 0";
+        $offset = ($pageNumber - 1) * $limit;
         $params = [];
 
         $conditions = [];
@@ -81,12 +82,20 @@ abstract class BaseRepository implements IRepository
         if (!empty($conditions)) {
             $sql .= " AND (" . implode(" OR ", $conditions) . ")";
         }
+        $countSql = str_replace("SELECT *", "SELECT COUNT(*) as total", $sql);
 
-        $stmt = $this->db->prepare($sql);
+        $countStmt = $this->db->prepare($countSql);
+        $countStmt->execute($params);
+        $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+        $totalPages = ceil($totalRecords / $limit);
+
+        $stmt = $this->db->prepare($sql . " LIMIT $limit OFFSET $offset");
+
         $stmt->execute($params);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(fn($data) => new $this->model($data), $results);
+        return [array_map(fn($data) => new $this->model($data), $results), $totalPages];
     }
 
     // Thêm user mới
