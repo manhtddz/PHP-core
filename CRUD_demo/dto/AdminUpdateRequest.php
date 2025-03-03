@@ -3,6 +3,8 @@ class AdminUpdateRequest
 {
     private $name;
     private $email;
+    private $password;
+    private $passwordConfirm;
     private $avatar;
     private $role_type;
     // private $ins_id;

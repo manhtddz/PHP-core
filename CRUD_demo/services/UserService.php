@@ -37,39 +37,49 @@ class UserService extends BaseService
         }
         return $user;
     }
-    public function getAllUsers($pageNumber)
+    public function getAllUsers($pageNumber, $sort)
     {
-        return $this->userRepo->getAll(pageNumber: $pageNumber);
+        return $this->userRepo->getAll(pageNumber: $pageNumber, sort: $sort);
     }
 
-    public function search(SearchRequest $request,$page)
+    public function search(SearchRequest $request, int $page, $sort)
     {
         $data = $request->toArray();
-        return $this->userRepo->search($data, pageNumber: $page);
+        return $this->userRepo->search($data, pageNumber: $page, sort: $sort);
     }
 
     public function createUser(UserCreateRequest $user)
     {
         $data = $user->toArray();
         $errors = [];
-        if (empty($data['password']) || !Validation::validatePassword(trim($data['password']))) {
-            $errors['passwordError'] = "Mật khẩu ko hợp lệ";
+        if (!Validation::validatePassword(trim($data['password']))) {
+            $errors['passwordError'] = "The password format is incorrect";
         } else {
             $data["password"] = password_hash(trim($data['password']), PASSWORD_DEFAULT);
         }
-        if (empty($data['name']) || strlen(trim($data['name'])) > 128) {
-            $errors['nameError'] = "Tên phải từ 1 đến 128 ký tự";
+        if (empty($data['name'])) {
+            $errors['nameError'] = "Name cannot be blank";
         }
-        if (empty($data['email']) || strlen(trim($data['email'])) > 128 || !Validation::validateEmail(trim($data['email']))) {
-            $errors['emailError'] = "Email ko hợp lệ";
-        } else if ($this->userRepo->existedEmail(trim($data['email']))) {
-            $errors['emailError'] = "Email đã tồn tại";
+        if (strlen(trim($data['name'])) > 128) {
+            $errors['nameError'] = "Name max length is 128";
         }
-        if (empty($data['avatar']) || strlen(trim($data['avatar'])) > 128) {
-            $errors['avatarError'] = "Chưa chọn file hoặc tên file quá dài";
+        if (strlen($data['email']) > 128) {
+            $errors['emailError'] = "Email max length is 128";
+        }
+        if (!Validation::validateEmail($data['email'])) {
+            $errors['emailError'] = "The email format is incorrect";
+        }
+        if ($this->userRepo->existedEmail(trim($data['email']))) {
+            $errors['emailError'] = "Email is already existed";
+        }
+        if (empty($data['avatar'])) {
+            $errors['avatarError'] = "You have to choose avatar file";
+        }
+        if (strlen(trim($data['avatar'])) > 128) {
+            $errors['avatarError'] = "Avatar name file max lenght is 128";
         }
         if (!$this->fileHelper->isImageFile($data['avatar'])) {
-            $errors['avatarError'] = "Chọn sai loại file";
+            $errors['avatarError'] = "Avatar must be png or jpg file";
         }
         if (!empty($errors)) {
             throw new ValidationException($errors);
@@ -82,23 +92,31 @@ class UserService extends BaseService
         $data = $user->toArray();
         $errors = [];
 
-        if (empty($data['name']) || strlen(trim($data['name'])) > 128) {
-            $errors['nameError'] = "Tên phải từ 1 đến 128 ký tự";
+        if (empty($data['name'])) {
+            $errors['nameError'] = "Name cannot be blank";
         }
-        if (empty($data['email']) || strlen(trim($data['email'])) > 128 || !Validation::validateEmail(trim($data['email']))) {
-            $errors['emailError'] = "Email ko hợp lệ";
+        if (strlen(trim($data['name'])) > 128) {
+            $errors['nameError'] = "Name max length is 128";
+        }
+        if (strlen($data['email']) > 128) {
+            $errors['emailError'] = "Email max length is 128";
+        }
+        if (empty($data['avatar'])) {
+            $errors['avatarError'] = "You have to choose avatar file";
+        }
+        if (strlen(trim($data['avatar'])) > 128) {
+            $errors['avatarError'] = "Avatar name file max lenght is 128";
+        }
+        if (!$this->fileHelper->isImageFile($data['avatar'])) {
+            $errors['avatarError'] = "Avatar must be png or jpg file";
+        }
+        if (!Validation::validateEmail(trim($data['email']))) {
+            $errors['emailError'] = "The email format is incorrect";
         } else {
             $checkedId = $this->userRepo->existedEmail(trim($data['email']));
             if ($checkedId != $id) {
-                $errors['emailError'] = "Email đã tồn tại";
+                $errors['emailError'] = "Email is already existed";
             }
-        }
-        if (empty($data['avatar']) || strlen(trim($data['avatar'])) > 128) {
-            $errors['avatarError'] = "Avatar phải từ 1 đến 128 ký tự";
-            $this->fileHelper->deleteFile($data['avatar']);
-        }
-        if (!$this->fileHelper->isImageFile($data['avatar'])) {
-            $errors['avatarError'] = "Chọn sai loại file";
         }
         if (!empty($errors)) {
             throw new ValidationException($errors);

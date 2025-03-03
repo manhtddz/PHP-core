@@ -21,8 +21,11 @@ class UserController extends BaseController
     {
         $this->checkLogin("adminIndex", "admin_id", "adminIndex");
         $page = max(1, intval($_GET["page"] ?? 1));
-        list($users, $totalPages) = $this->userService->getAllUsers($page);
-        $this->view("users.index", compact("users", "totalPages", "page"));
+        $sort = $_GET['sort'] ?? 'desc';
+        $newSort = $sort === 'asc' ? 'desc' : 'asc';
+        $orderBy = $sort === 'asc' ? true : false;
+        list($users, $totalPages) = $this->userService->getAllUsers($page, $orderBy);
+        $this->view("users.index", compact("users", "totalPages", "page", "sort", "newSort"));
     }
 
     public function search()
@@ -40,8 +43,11 @@ class UserController extends BaseController
             if (!empty($email))
                 $searchParams['email'] = $email;
             $page = max(1, intval($_GET["page"] ?? 1));
-            list($users, $totalPages) = $this->userService->search(new SearchRequest($searchParams), $page);
-            $this->view("users.search", compact("users", "totalPages", "page", "name", "email"));
+            $sort = $_GET['sort'] ?? 'desc';
+            $newSort = $sort === 'asc' ? 'desc' : 'asc';
+            $orderBy = $sort === 'asc' ? true : false;
+            list($users, $totalPages) = $this->userService->search(new SearchRequest($searchParams), $page, $orderBy);
+            $this->view("users.search", compact("users", "totalPages", "page", "name", "email", "sort", "newSort"));
             exit();
         }
         $this->view("users.search");
@@ -51,7 +57,17 @@ class UserController extends BaseController
     public function login()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = [];
+            if (empty($_POST['email']))
+                $errors['emailError'] = 'Email can not be blank';
+            if (empty($_POST['password']))
+                $errors['passwordError'] = 'Password can not be blank';
+            if (!empty($errors)) {
+                $this->redirectWithErrors('?', $errors);
+                exit;
+            }
             try {
+                $_POST = $this->cleanInputData($_POST);
                 $req = new LoginRequest($_POST);
                 $user = $this->userService->login($req);
                 if ($user) {
@@ -124,6 +140,8 @@ class UserController extends BaseController
                     ? time() . "_" . $_FILES["new_avatar"]["name"]
                     : '';
                 $this->userService->createUser(new UserCreateRequest($_POST));
+                $_SESSION['success'] = "Create successful!";
+
                 header("Location: ?controller=user");
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
@@ -143,6 +161,8 @@ class UserController extends BaseController
                     : $_POST['current_avatar'];
                 $id = $_POST['id'];
                 $this->userService->updateUser($id, new UserUpdateRequest($_POST));
+                $_SESSION['success'] = "Update successful!";
+
                 header("Location: ?controller=user");
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
@@ -160,6 +180,8 @@ class UserController extends BaseController
 
         try {
             $this->userService->deleteUser($id);
+            $_SESSION['success'] = "Delete successful!";
+
             header("Location: ?controller=user");
             exit;
         } catch (Exception $e) {

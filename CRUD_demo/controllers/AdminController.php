@@ -21,8 +21,11 @@ class AdminController extends BaseController
     {
         $this->checkLogin("adminIndex", "admin_id", 'adminIndex');
         $page = max(1, intval($_GET["page"] ?? 1));
-        list($admins, $totalPages) = $this->adminService->getAllAdmins($page);
-        $this->view("admins.index", compact("admins", "totalPages", "page"));
+        $sort = $_GET['sort'] ?? 'desc';
+        $newSort = $sort === 'asc' ? 'desc' : 'asc';
+        $orderBy = $sort === 'asc' ? true : false;
+        list($admins, $totalPages) = $this->adminService->getAllAdmins($page, $orderBy);
+        $this->view("admins.index", compact("admins", "totalPages", "page", "sort", "newSort"));
     }
 
     public function search()
@@ -40,8 +43,13 @@ class AdminController extends BaseController
             if (!empty($email))
                 $searchParams['email'] = $email;
             $page = max(1, intval($_GET["page"] ?? 1));
-            list($admins, $totalPages) = $this->adminService->search(new SearchRequest($searchParams), $page);
-            $this->view("admins.search", compact("admins", "totalPages", "page", "name", "email"));
+
+            $sort = $_GET['sort'] ?? 'desc';
+            $newSort = $sort === 'asc' ? 'desc' : 'asc';
+            $orderBy = $sort === 'asc' ? true : false;
+
+            list($admins, $totalPages) = $this->adminService->search(new SearchRequest($searchParams), $page, $orderBy);
+            $this->view("admins.search", compact("admins", "totalPages", "page", "name", "email", "sort", "newSort"));
             exit();
         }
         $this->view("admins.search");
@@ -51,7 +59,17 @@ class AdminController extends BaseController
     public function login()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = [];
+            if (empty($_POST['email']))
+                $errors['emailError'] = 'Email can not be blank';
+            if (empty($_POST['password']))
+                $errors['passwordError'] = 'Password can not be blank';
+            if (!empty($errors)) {
+                $this->redirectWithErrors('?action=adminIndex', $errors);
+                exit;
+            }
             try {
+                $_POST = $this->cleanInputData($_POST);
                 $req = new LoginRequest($_POST);
                 $admin = $this->adminService->login($req);
                 if ($admin) {
@@ -104,6 +122,7 @@ class AdminController extends BaseController
                     ? time() . "_" . $_FILES["new_avatar"]["name"]
                     : '';
                 $this->adminService->createAdmin(new AdminCreateRequest($_POST));
+                $_SESSION['success'] = "Create successful!";
                 header("Location: ?controller=admin");
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
@@ -123,6 +142,7 @@ class AdminController extends BaseController
                     : $_POST['current_avatar'];
                 $id = $_POST['id'];
                 $this->adminService->updateAdmin($id, new AdminUpdateRequest($_POST));
+                $_SESSION['success'] = "Update successful!";
                 header("Location: ?controller=admin");
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
@@ -140,6 +160,7 @@ class AdminController extends BaseController
 
         try {
             $this->adminService->deleteAdmin($id);
+            $_SESSION['success'] = "Delete successful!";
             header("Location: ?controller=admin");
             exit;
         } catch (Exception $e) {

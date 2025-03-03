@@ -40,7 +40,12 @@
             <table class="table table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>
+                            <a href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $page ?>&sort=<?= $newSort ?>"
+                                class="text-white ">
+                                ID ↕
+                            </a>
+                        </th>
                         <th>Tên</th>
                         <th>Email</th>
                         <th>Avatar</th>
@@ -91,20 +96,20 @@
                         <ul class="pagination">
                             <li class="page-item <?= $page == 1 ? 'disabled' : '' ?>">
                                 <a class="page-link"
-                                    href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $page - 1 ?>">«
+                                    href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $page - 1 ?>&sort=<?= $sort ?>">«
                                     Trước</a>
                             </li>
 
                             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                                 <li class="page-item <?= $i == $page ? 'active' : '' ?>">
                                     <a class="page-link"
-                                        href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $i ?>"><?= $i ?></a>
+                                        href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $i ?>&sort=<?= $sort ?>"><?= $i ?></a>
                                 </li>
                             <?php endfor; ?>
 
                             <li class="page-item <?= $page == $totalPages ? 'disabled' : '' ?>">
                                 <a class="page-link"
-                                    href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $page + 1 ?>">Sau
+                                    href="?controller=admin&action=search&name=<?= urlencode($name) ?>&email=<?= urlencode($email) ?>&page=<?= $page + 1 ?>&sort=<?= $sort ?>">Sau
                                     »</a>
                             </li>
                         </ul>
@@ -112,7 +117,27 @@
                 <?php endif; ?>
             </table>
         <?php else: ?>
-            <p class="text-muted">Không tìm thấy người dùng nào.</p>
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Avatar</th>
+                        <th>Role</th>
+                        <th>Ngày Tạo</th>
+                        <th>Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7">
+                            <p class="">Can't find any admin</p>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
         <?php endif; ?>
     </div>
 

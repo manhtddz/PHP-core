@@ -43,7 +43,17 @@
                 <div class="text-danger"><?= $errors['emailError'] ?? ''; ?></div>
 
             </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="text" class="form-control" id="password" name="password"
+                    value="<?= $oldData['password'] ?? ''; ?>">
+                <div class="text-danger"><?= $errors['passwordError'] ?? ''; ?></div>
 
+            </div>
+            <div class="mb-3">
+                <label for="passwordConfirm" class="form-label">Confirm old password</label>
+                <input type="text" class="form-control" id="passwordConfirm" name="passwordConfirm">
+            </div>
             <div class="mb-3">
                 <input type="hidden" name="current_avatar" value="<?= $admin->getAvatar() ?>">
 

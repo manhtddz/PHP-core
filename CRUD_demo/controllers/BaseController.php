@@ -33,6 +33,14 @@ abstract class BaseController
         header("Location: $url");
         exit;
     }
+    protected function redirectWithErrors(string $url, array $errorMessage = []): void
+    {
+        if (!empty($errorMessage)) {
+            $_SESSION['errors'] = $errorMessage;
+        }
+        header("Location: $url");
+        exit;
+    }
     protected function cleanInputData(array $data)
     {
         return array_map(fn($value) => htmlspecialchars(stripslashes(trim($value))), $data);

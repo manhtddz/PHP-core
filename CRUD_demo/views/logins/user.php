@@ -1,9 +1,11 @@
 <?php
-// session_start();
+session_start();
 if (isset($_SESSION["user_id"]) && $_SESSION["user_id"] != "0") {
     header("Location: ?controller=user&action=info");
     exit;
 }
+$errors = $_SESSION['errors'] ?? []; // Lấy lỗi từ session nếu có
+unset($_SESSION['errors']); // Xóa lỗi sau khi lấy
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -31,12 +33,17 @@ if (isset($_SESSION["user_id"]) && $_SESSION["user_id"] != "0") {
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="text" class="form-control" id="email" name="email">
-
+                        <?php if (!empty($errors['emailError'])): ?>
+                            <p style="color: red;"><?php echo $errors['emailError']; ?></p>
+                        <?php endif; ?>
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Mật khẩu</label>
                         <input type="password" class="form-control" id="password" name="password">
+                        <?php if (!empty($errors['passwordError'])): ?>
+                            <p style="color: red;"><?php echo $errors['passwordError']; ?></p>
+                        <?php endif; ?>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>

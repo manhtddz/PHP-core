@@ -17,7 +17,7 @@ abstract class BaseRepository implements IRepository
     }
 
     //thêm attribute, limit, offset
-    public function getAll(int $limit = 6, int $pageNumber = 1)
+    public function getAll(int $limit = 6, int $pageNumber = 1, bool $sort = false)
     {
         try {
             $sql = "SELECT * FROM {$this->table} WHERE del_flag = 0";
@@ -29,7 +29,13 @@ abstract class BaseRepository implements IRepository
             $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
             $totalPages = ceil($totalRecords / $limit);
 
-            $results = $this->db->query($sql . " LIMIT $limit OFFSET $offset")->fetchAll(PDO::FETCH_ASSOC);
+            if ($sort) {
+                $sql .= " ORDER BY id DESC LIMIT $limit OFFSET $offset";
+            } else {
+                $sql .= " ORDER BY id ASC LIMIT $limit OFFSET $offset";
+            }
+
+            $results = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
             return [array_map(fn($data) => new $this->model($data), $results), $totalPages];
 
         } catch (Throwable $e) {
@@ -61,7 +67,7 @@ abstract class BaseRepository implements IRepository
             return null;
         }
     }
-    public function search(array $data, int $limit = 6, int $pageNumber = 1)
+    public function search(array $data, int $limit = 6, int $pageNumber = 1, bool $sort = false)
     {
         $sql = "SELECT * FROM {$this->table} WHERE del_flag = 0";
         $offset = ($pageNumber - 1) * $limit;
@@ -90,7 +96,13 @@ abstract class BaseRepository implements IRepository
 
         $totalPages = ceil($totalRecords / $limit);
 
-        $stmt = $this->db->prepare($sql . " LIMIT $limit OFFSET $offset");
+        if ($sort) {
+            $sql .= " ORDER BY id DESC LIMIT $limit OFFSET $offset";
+        } else {
+            $sql .= " ORDER BY id ASC LIMIT $limit OFFSET $offset";
+        }
+
+        $stmt = $this->db->prepare($sql);
 
         $stmt->execute($params);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
