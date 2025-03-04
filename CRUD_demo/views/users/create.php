@@ -60,7 +60,7 @@
             <div class="mb-3">
                 <!-- <label for="ins_id" class="form-label">Người thêm (ID)</label> -->
                 <input type="hidden" class="form-control" id="ins_id" name="ins_id"
-                    value="<?= $_SESSION['admin_id'] ?>">
+                    value="<?= $_SESSION['id'] ?>">
             </div>
 
             <button type="submit" class="btn btn-success">Thêm Người Dùng</button>

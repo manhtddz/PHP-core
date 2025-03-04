@@ -79,7 +79,7 @@
             <div class="mb-3">
                 <!-- <label for="upd_id" class="form-label">Người Sửa (ID)</label> -->
                 <input type="hidden" class="form-control" id="upd_id" name="upd_id"
-                    value="<?= $_SESSION['admin_id'] ?>">
+                    value="<?= $_SESSION['id'] ?>">
             </div>
 
             <button type="submit" class="btn btn-success">Sửa Admin</button>

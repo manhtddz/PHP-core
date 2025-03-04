@@ -19,7 +19,7 @@ class UserController extends BaseController
 
     public function index()
     {
-        $this->checkLogin("adminIndex", "admin_id", "adminIndex");
+        $this->checkLogin('admin');
         $page = max(1, intval($_GET["page"] ?? 1));
         $sort = $_GET['sort'] ?? 'desc';
         $newSort = $sort === 'asc' ? 'desc' : 'asc';
@@ -30,6 +30,7 @@ class UserController extends BaseController
 
     public function search()
     {
+        $this->checkLogin('admin');
         // Lấy giá trị từ GET
         $name = isset($_GET['name']) ? $this->cleanOneData($_GET['name']) : '';
         $email = isset($_GET['email']) ? $this->cleanOneData($_GET['email']) : '';
@@ -53,44 +54,9 @@ class UserController extends BaseController
         $this->view("users.search");
         exit();
     }
-
-    public function login()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errors = [];
-            if (empty($_POST['email']))
-                $errors['emailError'] = 'Email can not be blank';
-            if (empty($_POST['password']))
-                $errors['passwordError'] = 'Password can not be blank';
-            if (!empty($errors)) {
-                $this->redirectWithErrors('?', $errors);
-                exit;
-            }
-            try {
-                $_POST = $this->cleanInputData($_POST);
-                $req = new LoginRequest($_POST);
-                $user = $this->userService->login($req);
-                if ($user) {
-                    $_SESSION['user'] = $user->getName();
-                    $_SESSION['user_id'] = $user->getId();
-                    header('Location: ?controller=user&action=info');
-                    exit;
-                }
-            } catch (Exception $e) {
-                $this->redirectWithError('?', $e->getMessage());
-            }
-        }
-    }
-
-    public function logout()
-    {
-        session_destroy();
-        header("Location: ?");
-        exit;
-    }
-
     public function create()
     {
+        $this->checkLogin('admin');
         $this->view('users.create', [
             'errors' => $_SESSION['errors'] ?? [],
             'oldData' => $_SESSION['oldData'] ?? []
@@ -100,11 +66,11 @@ class UserController extends BaseController
 
     public function edit()
     {
+        $this->checkLogin('admin');
         try {
-
             $id = $_GET["id"] ?? "0";
             if (empty($id) || $id == "0" || !filter_var($id, FILTER_VALIDATE_INT))
-                $this->redirectWithError("?controller=admin", "Không có ID hợp lệ");
+                $this->redirectWithError("?controller=admin", "Not valid ID");
 
             $user = $this->userService->getUserById($id);
 
@@ -119,9 +85,9 @@ class UserController extends BaseController
     }
     public function info()
     {
-        $this->checkLogin("index", "user_id", "index" ?? "");
+        $this->checkLogin('user');
 
-        $id = $_SESSION["user_id"];
+        $id = $_SESSION["id"];
 
         $user = $this->userService->getUserById($id);
 
@@ -166,7 +132,6 @@ class UserController extends BaseController
                 header("Location: ?controller=user");
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
-                $_SESSION['oldData'] = $_POST;
                 $this->redirectWithError("?controller=user&action=edit&id=$id");
             }
         }
@@ -176,7 +141,7 @@ class UserController extends BaseController
     {
         $id = $_GET["id"] ?? "0";
         if (empty($id) || $id == "0" || !filter_var($id, FILTER_VALIDATE_INT))
-            $this->redirectWithError("?controller=user", "Không có ID hợp lệ");
+            $this->redirectWithError("?controller=user", "Not valid ID");
 
         try {
             $this->userService->deleteUser($id);

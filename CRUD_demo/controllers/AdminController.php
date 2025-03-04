@@ -19,7 +19,7 @@ class AdminController extends BaseController
 
     public function index()
     {
-        $this->checkLogin("adminIndex", "admin_id", 'adminIndex');
+        $this->checkLogin('admin');
         $page = max(1, intval($_GET["page"] ?? 1));
         $sort = $_GET['sort'] ?? 'desc';
         $newSort = $sort === 'asc' ? 'desc' : 'asc';
@@ -30,6 +30,7 @@ class AdminController extends BaseController
 
     public function search()
     {
+        $this->checkLogin('admin');
         // Lấy giá trị từ GET
         $name = isset($_GET['name']) ? $this->cleanOneData($_GET['name']) : '';
         $email = isset($_GET['email']) ? $this->cleanOneData($_GET['email']) : '';
@@ -56,36 +57,37 @@ class AdminController extends BaseController
         exit();
     }
 
-    public function login()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errors = [];
-            if (empty($_POST['email']))
-                $errors['emailError'] = 'Email can not be blank';
-            if (empty($_POST['password']))
-                $errors['passwordError'] = 'Password can not be blank';
-            if (!empty($errors)) {
-                $this->redirectWithErrors('?action=adminIndex', $errors);
-                exit;
-            }
-            try {
-                $_POST = $this->cleanInputData($_POST);
-                $req = new LoginRequest($_POST);
-                $admin = $this->adminService->login($req);
-                if ($admin) {
-                    $_SESSION['admin'] = $admin->getName();
-                    $_SESSION['admin_id'] = $admin->getId();
-                    header('Location: ?controller=admin');
-                    exit;
-                }
-            } catch (Exception $e) {
-                $this->redirectWithError('?action=adminIndex', $e->getMessage());
-            }
-        }
-    }
+    // public function login()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //         $errors = [];
+    //         if (empty($_POST['email']))
+    //             $errors['emailError'] = 'Email can not be blank';
+    //         if (empty($_POST['password']))
+    //             $errors['passwordError'] = 'Password can not be blank';
+    //         if (!empty($errors)) {
+    //             $this->redirectWithErrors('?action=adminIndex', $errors);
+    //             exit;
+    //         }
+    //         try {
+    //             $_POST = $this->cleanInputData($_POST);
+    //             $req = new LoginRequest($_POST);
+    //             $admin = $this->adminService->login($req);
+    //             if ($admin) {
+    //                 $_SESSION['admin'] = $admin->getName();
+    //                 $_SESSION['admin_id'] = $admin->getId();
+    //                 header('Location: ?controller=admin');
+    //                 exit;
+    //             }
+    //         } catch (Exception $e) {
+    //             $this->redirectWithError('?action=adminIndex', $e->getMessage());
+    //         }
+    //     }
+    // }
 
     public function create()
     {
+        $this->checkLogin('admin');
         $this->view('admins.create', [
             'errors' => $_SESSION['errors'] ?? [],
             'oldData' => $_SESSION['oldData'] ?? []
@@ -95,10 +97,11 @@ class AdminController extends BaseController
 
     public function edit()
     {
+        $this->checkLogin('admin');
         try {
             $id = $_GET["id"] ?? "0";
             if (empty($id) || $id == "0" || !filter_var($id, FILTER_VALIDATE_INT))
-                $this->redirectWithError("?controller=admin", "Không có ID hợp lệ");
+                $this->redirectWithError("?controller=admin", "Not valid ID");
 
             $admin = $this->adminService->getAdminById($id);
 
@@ -146,7 +149,6 @@ class AdminController extends BaseController
                 header("Location: ?controller=admin");
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
-                $_SESSION['oldData'] = $_POST;
                 $this->redirectWithError("?controller=admin&action=edit&id=$id");
             }
         }
@@ -156,7 +158,7 @@ class AdminController extends BaseController
     {
         $id = $_GET["id"] ?? "0";
         if (empty($id) || $id == "0" || !filter_var($id, FILTER_VALIDATE_INT))
-            $this->redirectWithError("?controller=admin", "Không có ID hợp lệ");
+            $this->redirectWithError("?controller=admin", "Not valid ID");
 
         try {
             $this->adminService->deleteAdmin($id);

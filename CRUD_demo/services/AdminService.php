@@ -13,23 +13,11 @@ class AdminService extends BaseService
         parent::__construct();
         $this->adminRepo = new AdminRepository();
     }
-    public function login(LoginRequest $request)
-    {
-        $admin = $this->adminRepo->findByEmail($request->getEmail());
-        if (empty($admin)) {
-            throw new Exception("Email ko tồn tại");
-        }
-        if (password_verify($request->getPassword(), $admin->getPassword())) {
-            return $admin;
-        } else {
-            throw new Exception("Sai email hoặc mật khẩu");
-        }
-    }
     public function getAdminById($id)
     {
         $admin = $this->adminRepo->findById($id);
         if (empty($admin)) {
-            throw new Exception("Admin không tồn tại");
+            throw new Exception("Admin is not existed");
         }
         return $admin;
     }
@@ -139,7 +127,7 @@ class AdminService extends BaseService
     {
         $admin = $this->adminRepo->findById($id);
         if (empty($admin)) {
-            throw new Exception("Admin không tồn tại");
+            throw new Exception("Admin is not existed");
         }
         return $this->adminRepo->delete($id);
     }

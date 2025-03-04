@@ -18,7 +18,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="?controller=user&action=logout">Log out</a>
+                        <a class="nav-link" href="?&action=logout">Log out</a>
                     </li>
                 </ul>
             </div>
@@ -47,8 +47,9 @@
                 <th>Avatar</th>
                 <td>
                     <?php if ($user->getAvatar()): ?>
-                        <img src="<?= htmlspecialchars($user->getAvatar()) ?>" width="50" height="50" class="rounded-circle"
-                            title="<?= $user->getAvatar() ?>">
+
+                        <img src="uploads/images/avatar/<?= $user->getAvatar() ?>" width="50" height="50"
+                            class="rounded-circle" title="<?= $user->getAvatar() ?>">
                     <?php else: ?>
                         <span class="text-muted">Không có ảnh</span>
                     <?php endif; ?>

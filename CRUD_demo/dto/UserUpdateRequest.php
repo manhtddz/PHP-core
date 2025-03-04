@@ -3,7 +3,7 @@ class UserUpdateRequest
 {
     private $name;
     // private $facebook_id;
-    private $password;
+    // private $password;
     private $email;
     private $avatar;
     private $status;

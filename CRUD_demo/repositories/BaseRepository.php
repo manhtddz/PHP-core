@@ -43,18 +43,6 @@ abstract class BaseRepository implements IRepository
             return null;
         }
     }
-    public function findByEmail(string $email)
-    {
-        try {
-            $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE email = :email AND del_flag = 0");
-            $stmt->execute(['email' => $email]);
-            $data = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $data ? new $this->model($data) : null;
-        } catch (Throwable $e) {
-            echo $e->getMessage();
-            return null;
-        }
-    }
     public function findById(int $id)
     {
         try {

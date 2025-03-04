@@ -35,7 +35,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="?controller=user&action=logout">Logout</a>
+                    <a class="nav-link" href="?action=logout">Logout</a>
                 </li>
             </ul>
         </div>

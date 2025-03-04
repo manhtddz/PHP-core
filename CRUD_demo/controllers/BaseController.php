@@ -16,13 +16,13 @@ abstract class BaseController
             str_replace('.', '/', $viewPath) . '.php');
     }
 
-    protected function checkLogin($route, $checkParam, $loginRoute)
+    protected function checkLogin($role)
     {
         // session_start();
 
-        if (empty($_SESSION[$checkParam]) && $_GET['action'] !== $loginRoute) {
+        if ($_SESSION['role'] !== $role) {
             $_SESSION['error'] = "Bạn chưa đăng nhập!";
-            header("Location: ?controller=home&action={$route}");
+            header("Location: ?");
             exit;
         }
     }

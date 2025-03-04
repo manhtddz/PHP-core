@@ -16,24 +16,24 @@ class UserService extends BaseService
         $this->userRepo = new UserRepository();
     }
 
-    public function login(LoginRequest $request)
-    {
-        $user = $this->userRepo->findByEmail($request->getEmail());
-        if (empty($user)) {
-            throw new Exception("Email rỗng hoặc ko tồn tại");
-        }
-        if (password_verify($request->getPassword(), $user->getPassword())) {
-            return $user;
-        } else {
-            throw new Exception("Sai email hoặc mật khẩu");
-        }
+    // public function login(LoginRequest $request)
+    // {
+    //     $user = $this->userRepo->findByEmail($request->getEmail());
+    //     if (empty($user)) {
+    //         throw new Exception("Email is not existed");
+    //     }
+    //     if (password_verify($request->getPassword(), $user->getPassword()) && $user->getStatus() === 1) {
+    //         return $user;
+    //     } else {
+    //         throw new Exception("Email is banned or wrong password");
+    //     }
 
-    }
+    // }
     public function getUserById($id)
     {
         $user = $this->userRepo->findById($id);
         if (empty($user)) {
-            throw new Exception("User không tồn tại");
+            throw new Exception("User is not existed");
         }
         return $user;
     }
@@ -131,7 +131,7 @@ class UserService extends BaseService
     {
         $user = $this->userRepo->findById($id);
         if (empty($user)) {
-            throw new Exception("User ko tồn tại");
+            throw new Exception("User is not existed");
         }
         return $this->userRepo->delete($id);
     }
