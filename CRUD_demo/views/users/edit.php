@@ -57,9 +57,14 @@
 
             <div class="mb-3">
                 <label for="status" class="form-label">Trạng Thái</label>
-                <select class="form-control" id="status" name="status">
+                <!-- <select class="form-control" id="status" name="status">
                     <option value="1" selected>Hoạt động</option>
                     <option value="0">Ngừng hoạt động</option>
+                </select> -->
+                <select id="status" name="status" class="form-control">
+                    <option value="1" <?= $user->getStatus() == "1" ? 'selected' : ''; ?>>Hoạt động
+                    </option>
+                    <option value="0" <?= $user->getStatus() == "0" ? 'selected' : ''; ?>>Ngừng hoạt động</option>
                 </select>
             </div>
 

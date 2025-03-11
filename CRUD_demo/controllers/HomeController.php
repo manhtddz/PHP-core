@@ -47,9 +47,13 @@ class HomeController extends BaseController
                 if ($auth) {
                     $_SESSION['role'] = $auth['role'];
                     $_SESSION['id'] = $auth['id'];
-                    $_SESSION['role'] === 'user' ?
-                        header('Location: ?controller=user&action=info') :
+                    if ($_SESSION['role'] === 'user') {
+                        header('Location: ?controller=user&action=info');
+                    } else if ($_SESSION['role'] === 'admin') {
                         header('Location: ?controller=admin&action=index');
+                    } else {
+                        $this->redirectWithError('?', "Role is not accepted");
+                    }
                     exit;
                 }
             } catch (Exception $e) {

@@ -109,6 +109,7 @@ class UserController extends BaseController
                 $_SESSION['success'] = "Create successful!";
 
                 header("Location: ?controller=user");
+                exit;
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
                 $_SESSION['oldData'] = $_POST;
@@ -130,6 +131,7 @@ class UserController extends BaseController
                 $_SESSION['success'] = "Update successful!";
 
                 header("Location: ?controller=user");
+                exit;
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
                 $this->redirectWithError("?controller=user&action=edit&id=$id");

@@ -57,33 +57,6 @@ class AdminController extends BaseController
         exit();
     }
 
-    // public function login()
-    // {
-    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    //         $errors = [];
-    //         if (empty($_POST['email']))
-    //             $errors['emailError'] = 'Email can not be blank';
-    //         if (empty($_POST['password']))
-    //             $errors['passwordError'] = 'Password can not be blank';
-    //         if (!empty($errors)) {
-    //             $this->redirectWithErrors('?action=adminIndex', $errors);
-    //             exit;
-    //         }
-    //         try {
-    //             $_POST = $this->cleanInputData($_POST);
-    //             $req = new LoginRequest($_POST);
-    //             $admin = $this->adminService->login($req);
-    //             if ($admin) {
-    //                 $_SESSION['admin'] = $admin->getName();
-    //                 $_SESSION['admin_id'] = $admin->getId();
-    //                 header('Location: ?controller=admin');
-    //                 exit;
-    //             }
-    //         } catch (Exception $e) {
-    //             $this->redirectWithError('?action=adminIndex', $e->getMessage());
-    //         }
-    //     }
-    // }
 
     public function create()
     {
@@ -127,6 +100,7 @@ class AdminController extends BaseController
                 $this->adminService->createAdmin(new AdminCreateRequest($_POST));
                 $_SESSION['success'] = "Create successful!";
                 header("Location: ?controller=admin");
+                exit;
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
                 $_SESSION['oldData'] = $_POST;
@@ -147,6 +121,7 @@ class AdminController extends BaseController
                 $this->adminService->updateAdmin($id, new AdminUpdateRequest($_POST));
                 $_SESSION['success'] = "Update successful!";
                 header("Location: ?controller=admin");
+                exit;
             } catch (ValidationException $e) {
                 $_SESSION['errors'] = $e->getErrors();
                 $this->redirectWithError("?controller=admin&action=edit&id=$id");

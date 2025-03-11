@@ -86,6 +86,7 @@ class AdminService extends BaseService
             }
         } else {
             unset($data['password']);
+            unset($data['passwordConfirm']);
         }
         if (empty($data['name'])) {
             $errors['nameError'] = "Name cannot be blank";

@@ -70,16 +70,20 @@
 
             <div class="mb-3">
                 <label for="role_type" class="form-label">Role</label>
-                <select class="form-control" id="role_type" name="role_type">
+                <!-- <select class="form-control" id="role_type" name="role_type">
                     <option value="1" selected>Admin</option>
                     <option value="2">Super admin</option>
+                </select> -->
+                <select name="role_type" class="form-control mb-2">
+                    <option value="1" <?= $admin->getRoleType() == "1" ? 'selected' : ''; ?>>Admin
+                    </option>
+                    <option value="2" <?= $admin->getRoleType() == "2" ? 'selected' : ''; ?>>Super Admin</option>
                 </select>
             </div>
 
             <div class="mb-3">
                 <!-- <label for="upd_id" class="form-label">Người Sửa (ID)</label> -->
-                <input type="hidden" class="form-control" id="upd_id" name="upd_id"
-                    value="<?= $_SESSION['id'] ?>">
+                <input type="hidden" class="form-control" id="upd_id" name="upd_id" value="<?= $_SESSION['id'] ?>">
             </div>
 
             <button type="submit" class="btn btn-success">Sửa Admin</button>
