@@ -42,6 +42,12 @@ class UserService extends BaseService
         return $this->userRepo->getAll(pageNumber: $pageNumber, sort: $sort);
     }
 
+    public function findByFacebookId($facebook_id)
+    {
+        return $this->userRepo->findByFacebookId($facebook_id);
+    }
+
+
     public function search(SearchRequest $request, int $page, $sort)
     {
         $data = $request->toArray();
@@ -106,6 +112,14 @@ class UserService extends BaseService
         $this->fileHelper->uploadFile($data['avatar']);
         return $this->userRepo->create($data);
     }
+
+    public function createFacebookUser(FacebookUserCreateRequest $user)
+    {
+        $data = $user->toArray();
+        return $this->userRepo->create($data);
+
+    }
+    
     public function updateUser($id, UserUpdateRequest $user)
     {
         $data = $user->toArray();

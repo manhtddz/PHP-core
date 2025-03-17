@@ -28,4 +28,5 @@ class AuthService
             throw new Exception("Wrong password");
         }
     }
+    
 }

@@ -47,6 +47,8 @@ unset($_SESSION['errors']); // Xóa lỗi sau khi lấy
                     <button type="submit" class="btn btn-primary w-100">Login</button>
                 </form>
                 <a href="?action=adminIndex">Admin login</a>
+                <a href="<?= $loginUrl ?>">login via facebook</a>
+
             </div>
         </div>
     </div>

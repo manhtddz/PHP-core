@@ -7,6 +7,7 @@ require_once(dirname(__DIR__) . "/dto/UserUpdateRequest.php");
 require_once(dirname(__DIR__) . "/dto/LoginRequest.php");
 require_once(dirname(__DIR__) . "/dto/SearchRequest.php");
 require_once(dirname(__DIR__) . "/exceptions/ValidationException.php");
+require_once(dirname(__DIR__) . "/vendor/autoload.php");
 
 class UserController extends BaseController
 {
@@ -97,8 +98,6 @@ class UserController extends BaseController
     }
     public function info()
     {
-        // $this->checkLogin('user');
-
         $id = $_SESSION["auth"]['id'];
 
         $user = $this->userService->getUserById($id);
@@ -106,7 +105,6 @@ class UserController extends BaseController
         $this->view("users.info", [
             "user" => $user
         ]);
-
     }
 
     public function createUser()
@@ -129,6 +127,8 @@ class UserController extends BaseController
             }
         }
     }
+
+
 
     public function updateUser()
     {

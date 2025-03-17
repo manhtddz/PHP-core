@@ -13,7 +13,7 @@ $actionName = $_GET['action'] ?? 'index';
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= $controller == 'user' ? 'active' : '' ?>" href="#"
                         id="userDropdown" role="button" data-bs-toggle="dropdown">
-                        Quản lý người dùng
+                        User management
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item <?= ($controller == 'user' && $actionName == 'index') ? 'active' : '' ?>"
@@ -29,7 +29,7 @@ $actionName = $_GET['action'] ?? 'index';
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?= $controller == 'admin' ? 'active' : '' ?>" href="#"
                         id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                        Quản lý Admin
+                        Admin management
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item <?= ($controller == 'admin' && $actionName == 'index') ? 'active' : '' ?>"
