@@ -50,24 +50,15 @@ class FileHelper
     //     return false;
     // }
 
-    public function uploadFile($newFileName)
+    public function uploadFile($newFileName, $file, $uploadDir)
     {
-        // Xóa ảnh cũ nếu có
-
-        $uploadDir = __DIR__ . "/../uploads/images/avatar/";
-        // Upload ảnh mới
-        move_uploaded_file($_FILES["new_avatar"]["tmp_name"], $uploadDir . $newFileName);
-        //  else {
-        //     // Nếu không có ảnh mới, giữ nguyên ảnh cũ
-        //     $_POST['avatar'] = $_POST['current_avatar'];
-        // }
+        return move_uploaded_file($file["tmp_name"], $uploadDir . $newFileName);
     }
-    public function deleteFile($fileName)
+    public function deleteFile($fileName, $uploadDir)
     {
-        $uploadDir = __DIR__ . "/../uploads/images/avatar/";
 
         // if (!empty($_POST['current_avatar']) && file_exists($uploadDir . $fileName)) {
-            unlink($uploadDir . $fileName);
+        return unlink($uploadDir . $fileName);
         // }
     }
     public function isImageFile(string $fileName)

@@ -107,12 +107,12 @@ class AdminController extends BaseController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                $_POST = $this->cleanInputData($_POST);
-                $_POST['avatar'] = isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0
-                    ? time() . "_" . $_FILES["new_avatar"]["name"]
-                    : '';
+                $tempDir = __DIR__ . "/../uploads/images/temp/";
+                $this->storeOldImage($_FILES["new_avatar"], $_POST['tempFileName'], $tempDir);
+                
                 $this->adminService->createAdmin(new AdminCreateRequest($_POST));
                 $_SESSION['success'] = "Create successful!";
+                unset($_SESSION['temp_avatar']);
                 header("Location: ?controller=admin");
                 exit;
             } catch (ValidationException $e) {

@@ -40,7 +40,14 @@
                 <input type="file" name="new_avatar" id="new_avatar">
                 <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
             </div>
-
+            <?php
+            $tempAvatar = $_SESSION["temp_avatar"] ?? '';
+            unset($_SESSION["temp_avatar"]);
+            ?>
+            <?php if ($tempAvatar && $tempAvatar !== ""): ?>
+                <img src="uploads/images/temp/<?= $tempAvatar ?>" width="150"><br>
+                <input type="hidden" name="tempFileName" value="<?php echo $tempAvatar; ?>">
+            <?php endif; ?>
             <div class="mb-3">
                 <?php
                 $selectedRole = $oldData['role_type'] ?? '';

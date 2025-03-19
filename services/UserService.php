@@ -58,6 +58,8 @@ class UserService extends BaseService
     {
         $data = $user->toArray();
         $errors = [];
+        $tempDir = __DIR__ . "/../uploads/images/temp/";
+
         if (empty($data['password'])) {
             $errors['passwordError'] = "Password cannot be blank";
         } elseif (strlen($data['password']) < 3 || strlen($data['password']) > 100) {
@@ -102,6 +104,8 @@ class UserService extends BaseService
             }
             if (!$this->fileHelper->isImageFile($data['avatar'])) {
                 $errors['avatarError'] = "Avatar must be png or jpg file";
+                $this->fileHelper->deleteFile($data['avatar'], $tempDir);
+
             }
         }
         if (!empty($errors)) {
@@ -109,7 +113,16 @@ class UserService extends BaseService
         }
         $data["password"] = password_hash($data["password"], PASSWORD_DEFAULT);
         unset($data['passwordVerify']);
-        $this->fileHelper->uploadFile($data['avatar']);
+        $uploadDir = __DIR__ . "/../uploads/images/avatar/";
+        if (file_exists($tempDir . $data['avatar'])) {
+            $newPath = $uploadDir . $data['avatar'];
+            rename($tempDir . $data['avatar'], $newPath); // Di chuyển file
+        }
+        // $this->fileHelper->uploadFile(
+        //     $data['avatar'],
+        //     $_FILES["new_avatar"],
+        //     $uploadDir
+        // );
         return $this->userRepo->create($data);
     }
 
@@ -119,7 +132,7 @@ class UserService extends BaseService
         return $this->userRepo->create($data);
 
     }
-    
+
     public function updateUser($id, UserUpdateRequest $user)
     {
         $data = $user->toArray();
@@ -167,22 +180,39 @@ class UserService extends BaseService
         }
         // var_dump($data['avatar']);
         // exit;
-        if (empty($data['avatar'])) {
-            $errors['avatarError'] = "You have to choose avatar file";
-        }
-        if (strlen(trim($data['avatar'])) > 128) {
-            $errors['avatarError'] = "Avatar name file max lenght is 128";
-        }
-        if (!$this->fileHelper->isImageFile($data['avatar'])) {
-            $errors['avatarError'] = "Avatar must be png or jpg file";
+        // if (empty($data['avatar'])) {
+        //     $errors['avatarError'] = "You have to choose avatar file";
+        // }
+        // if (strlen(trim($data['avatar'])) > 128) {
+        //     $errors['avatarError'] = "Avatar name file max lenght is 128";
+        // }
+        // if (!$this->fileHelper->isImageFile($data['avatar'])) {
+        //     $errors['avatarError'] = "Avatar must be png or jpg file";
+        // }
+        if (empty($data['avatar']) || $data['avatar'] === '') {
+            $errors['avatarError'] = "File required";
+        } else {
+            if (strlen(trim($data['avatar'])) > 128) {
+                $errors['avatarError'] = "Avatar name file max lenght is 128";
+            }
+            if (!$this->fileHelper->isImageFile($data['avatar'])) {
+                $errors['avatarError'] = "Avatar must be png or jpg file";
+            }
         }
 
         if (!empty($errors)) {
             throw new ValidationException($errors);
         }
         if ($data['avatar'] !== $_POST['current_avatar']) {
-            $this->fileHelper->uploadFile($data['avatar']);
-            $this->fileHelper->deleteFile($_POST['current_avatar']);
+            $uploadDir = __DIR__ . "/../uploads/images/avatar/";
+
+            $this->fileHelper->uploadFile(
+                $data['avatar'],
+                $_FILES["new_avatar"],
+                $uploadDir
+            );
+
+            $this->fileHelper->deleteFile($_POST['current_avatar'], $uploadDir);
         }
         $data["password"] = password_hash($data["password"], PASSWORD_DEFAULT);
         unset($data['passwordVerify']);

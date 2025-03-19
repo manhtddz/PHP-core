@@ -3,8 +3,11 @@
 abstract class BaseController
 {
     const VIEW_FOLDER_NAME = "views";
+    protected $fileHelper;
+
     public function __construct()
     {
+        $this->fileHelper = new FileHelper();
         session_start();
     }
     protected function view($viewPath, array $data = [])
@@ -52,6 +55,36 @@ abstract class BaseController
     protected function cleanOneData(string $data)
     {
         return htmlspecialchars(stripslashes(trim($data)));
+    }
+    protected function storeOldImage($newFile, $oldNameFile, $tempDir)
+    {
+        if (!empty($newFile) && $newFile["error"] === UPLOAD_ERR_OK) {
+            $newTempFileName = time() . "_" . basename($newFile["name"]);
+            if (
+                $this->fileHelper->uploadFile(
+                    $newTempFileName,
+                    $newFile,
+                    $tempDir
+                )
+            ) {
+                if ($this->fileHelper->isImageFile($newTempFileName)) {
+                    $_SESSION["temp_avatar"] = $newTempFileName;
+                }
+                $_POST['avatar'] = $newTempFileName;
+                if (!empty($oldNameFile)) {
+                    $this->fileHelper->deleteFile(basename($oldNameFile), $tempDir);
+                }
+            }
+        } elseif (
+            !empty($oldNameFile) &&
+            $this->fileHelper->isImageFile($oldNameFile)
+        ) {
+            $_POST['avatar'] = $oldNameFile;
+            $_SESSION["temp_avatar"] = $oldNameFile;
+
+        } else {
+            $_POST['avatar'] = '';
+        }
     }
     // public function redirectError($errorMessage)
     // {

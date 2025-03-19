@@ -8,6 +8,7 @@ require_once(dirname(__DIR__) . "/dto/LoginRequest.php");
 require_once(dirname(__DIR__) . "/dto/SearchRequest.php");
 require_once(dirname(__DIR__) . "/exceptions/ValidationException.php");
 require_once(dirname(__DIR__) . "/vendor/autoload.php");
+require_once(dirname(__DIR__) . "/utils/FileHelper.php");
 
 class UserController extends BaseController
 {
@@ -112,12 +113,13 @@ class UserController extends BaseController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $_POST = $this->cleanInputData($_POST);
-                $_POST['avatar'] = isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0
-                    ? time() . "_" . $_FILES["new_avatar"]["name"]
-                    : '';
+
+                $tempDir = __DIR__ . "/../uploads/images/temp/";
+                $this->storeOldImage($_FILES["new_avatar"],$_POST['tempFileName'],$tempDir);
+
                 $this->userService->createUser(new UserCreateRequest($_POST));
                 $_SESSION['success'] = "Create successful!";
-
+                unset($_SESSION['temp_avatar']);
                 header("Location: ?controller=user");
                 exit;
             } catch (ValidationException $e) {

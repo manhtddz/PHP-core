@@ -36,6 +36,7 @@ class AdminService extends BaseService
     {
         $data = $admin->toArray();
         $errors = [];
+        $tempDir = __DIR__ . "/../uploads/images/temp/";
 
         if (empty($data['password'])) {
             $errors['passwordError'] = "Password cannot be blank";
@@ -81,6 +82,7 @@ class AdminService extends BaseService
             }
             if (!$this->fileHelper->isImageFile($data['avatar'])) {
                 $errors['avatarError'] = "Avatar must be png or jpg file";
+                $this->fileHelper->deleteFile($data['avatar'], $tempDir);
             }
         }
         if (!empty($errors)) {
@@ -88,7 +90,11 @@ class AdminService extends BaseService
         }
         $data["password"] = password_hash($data["password"], PASSWORD_DEFAULT);
         unset($data['passwordVerify']);
-        $this->fileHelper->uploadFile($data['avatar']);
+        $uploadDir = __DIR__ . "/../uploads/images/avatar/";
+        if (file_exists($tempDir . $data['avatar'])) {
+            $newPath = $uploadDir . $data['avatar'];
+            rename($tempDir . $data['avatar'], $newPath); // Di chuyển file
+        }
         return $this->adminRepo->create($data);
     }
     public function updateAdmin($id, AdminUpdateRequest $admin)
@@ -155,8 +161,14 @@ class AdminService extends BaseService
             throw new ValidationException($errors);
         }
         if ($data['avatar'] !== $_POST['current_avatar']) {
-            $this->fileHelper->uploadFile($data['avatar']);
-            $this->fileHelper->deleteFile($_POST['current_avatar']);
+            $uploadDir = __DIR__ . "/../uploads/images/avatar/";
+
+            $this->fileHelper->uploadFile(
+                $data['avatar'],
+                $_FILES["new_avatar"],
+                $uploadDir
+            );
+            $this->fileHelper->deleteFile($_POST['current_avatar'], $uploadDir);
         }
         $data["password"] = password_hash($data["password"], PASSWORD_DEFAULT);
         unset($data['passwordVerify']);
