@@ -101,6 +101,8 @@ class AdminService extends BaseService
     {
         $data = $admin->toArray();
         $errors = [];
+        $tempDir = __DIR__ . "/../uploads/images/temp/";
+
         if (!empty($data['password'])) {
             if (strlen($data['password']) < 3 || strlen($data['password']) > 100) {
                 $errors['passwordError'] = "Password length must be between 3 and 100 characters";
@@ -160,14 +162,11 @@ class AdminService extends BaseService
         if (!empty($errors)) {
             throw new ValidationException($errors);
         }
-        if ($data['avatar'] !== $_POST['current_avatar']) {
-            $uploadDir = __DIR__ . "/../uploads/images/avatar/";
+        $uploadDir = __DIR__ . "/../uploads/images/avatar/";
+        if (file_exists($tempDir . $data['avatar'])) {
+            $newPath = $uploadDir . $data['avatar'];
+            rename($tempDir . $data['avatar'], $newPath); // Di chuyển file
 
-            $this->fileHelper->uploadFile(
-                $data['avatar'],
-                $_FILES["new_avatar"],
-                $uploadDir
-            );
             $this->fileHelper->deleteFile($_POST['current_avatar'], $uploadDir);
         }
         $data["password"] = password_hash($data["password"], PASSWORD_DEFAULT);

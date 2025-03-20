@@ -115,7 +115,7 @@ class UserController extends BaseController
                 $_POST = $this->cleanInputData($_POST);
 
                 $tempDir = __DIR__ . "/../uploads/images/temp/";
-                $this->storeOldImage($_FILES["new_avatar"],$_POST['tempFileName'],$tempDir);
+                $this->storeOldImage($_FILES["new_avatar"], $_POST['tempFileName'], $tempDir);
 
                 $this->userService->createUser(new UserCreateRequest($_POST));
                 $_SESSION['success'] = "Create successful!";
@@ -137,9 +137,9 @@ class UserController extends BaseController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $_POST = $this->cleanInputData($_POST);
-                $_POST['avatar'] = isset($_FILES["new_avatar"]) && $_FILES["new_avatar"]["size"] > 0
-                    ? time() . "_" . $_FILES["new_avatar"]["name"]
-                    : $_POST['current_avatar'];
+                $tempDir = __DIR__ . "/../uploads/images/temp/";
+                $this->storeOldImage($_FILES["new_avatar"], $_POST['tempFileName'], $tempDir, $_POST['current_avatar']);
+
                 $id = $_POST['id'];
                 $this->userService->updateUser($id, new UserUpdateRequest($_POST));
                 $_SESSION['success'] = "Update successful!";

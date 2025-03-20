@@ -16,9 +16,6 @@ class AuthService
         if (empty($auth)) {
             throw new Exception("Email is not exists");
         }
-        if ($auth['del_flag'] === '1') {
-            throw new Exception("Login failed");
-        }
         if ($auth['status'] === '2') {
             throw new Exception("You are banned");
         }

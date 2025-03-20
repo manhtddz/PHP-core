@@ -50,16 +50,24 @@
 
             <div class="mb-3">
                 <input type="hidden" name="current_avatar" value="<?= $user->getAvatar() ?>">
-
-                <!-- Hiển thị ảnh cũ -->
-                <?php if (!empty($user->getAvatar())): ?>
-                    <img src="uploads/images/avatar/<?= $user->getAvatar() ?>" width="150"><br>
-                <?php endif; ?>
-
                 <!-- Chọn ảnh mới -->
                 <label for="new_avatar">Upload avatar:</label>
                 <input type="file" name="new_avatar">
                 <div class="text-danger"><?= $errors['avatarError'] ?? ''; ?></div>
+
+                <?php
+                $tempAvatar = $_SESSION["temp_avatar"] ?? '';
+                unset($_SESSION["temp_avatar"]);
+
+                $avatarPath = $tempAvatar ?: $user->getAvatar();
+                $folder = ($tempAvatar && $tempAvatar !== $user->getAvatar()) ? "temp" : "avatar";
+                ?>
+
+                <?php if (!empty($avatarPath)): ?>
+                    <img src="uploads/images/<?= $folder ?>/<?= $avatarPath ?>" width="150"><br>
+                <?php endif; ?>
+
+                <input type="hidden" name="tempFileName" value="<?= $avatarPath ?>">
             </div>
 
             <div class="mb-3">

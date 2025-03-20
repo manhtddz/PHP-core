@@ -18,13 +18,13 @@ trait AuthTrait
         try {
             if ($typeOfUser == "admins") {
                 $stmt = $this->db->prepare(
-                    "SELECT role_type, id, password, del_flag FROM {$typeOfUser} 
-                    WHERE email = :email"
+                    "SELECT role_type, id, password FROM {$typeOfUser} 
+                    WHERE email = :email AND del_flag = 0"
                 );
             } else {
                 $stmt = $this->db->prepare(
-                    "SELECT id, password, status, del_flag FROM {$typeOfUser} 
-                    WHERE email = :email"
+                    "SELECT id, password, status FROM {$typeOfUser} 
+                    WHERE email = :email AND del_flag = 0"
                 );
             }
             $stmt->execute([
@@ -39,5 +39,5 @@ trait AuthTrait
             return null;
         }
     }
-    
+
 }

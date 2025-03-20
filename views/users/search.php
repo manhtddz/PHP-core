@@ -23,11 +23,13 @@
             <div class="row">
                 <div class="col-md-4">
                     <label for="name" class="form-label">Name:</label>
-                    <input type="text" class="form-control" id="name" name="name">
+                    <input type="text" class="form-control" id="name" name="name"
+                        value="<?= isset($_GET['name']) ? htmlspecialchars($_GET['name']) : '' ?>">
                 </div>
                 <div class="col-md-4">
                     <label for="email" class="form-label">Email:</label>
-                    <input type="text" class="form-control" id="email" name="email">
+                    <input type="text" class="form-control" id="email" name="email"
+                        value="<?= isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '' ?>">
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">Search</button>

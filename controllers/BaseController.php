@@ -56,7 +56,7 @@ abstract class BaseController
     {
         return htmlspecialchars(stripslashes(trim($data)));
     }
-    protected function storeOldImage($newFile, $oldNameFile, $tempDir)
+    protected function storeOldImage($newFile, $oldNameFile, $tempDir, $noImageString = '')
     {
         if (!empty($newFile) && $newFile["error"] === UPLOAD_ERR_OK) {
             $newTempFileName = time() . "_" . basename($newFile["name"]);
@@ -83,7 +83,7 @@ abstract class BaseController
             $_SESSION["temp_avatar"] = $oldNameFile;
 
         } else {
-            $_POST['avatar'] = '';
+            $_POST['avatar'] = $noImageString;
         }
     }
     // public function redirectError($errorMessage)
