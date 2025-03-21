@@ -21,11 +21,14 @@ trait AuthTrait
                     "SELECT role_type, id, password FROM {$typeOfUser} 
                     WHERE email = :email AND del_flag = 0"
                 );
-            } else {
+            } elseif ($typeOfUser == "users") {
                 $stmt = $this->db->prepare(
                     "SELECT id, password, status FROM {$typeOfUser} 
                     WHERE email = :email AND del_flag = 0"
                 );
+            } else {
+                echo 'sai roi';
+                exit;
             }
             $stmt->execute([
                 'email' => $email,

@@ -69,11 +69,13 @@ abstract class BaseController
             ) {
                 if ($this->fileHelper->isImageFile($newTempFileName)) {
                     $_SESSION["temp_avatar"] = $newTempFileName;
+                } else {
+                    $_SESSION["temp_avatar"] = $oldNameFile;
                 }
                 $_POST['avatar'] = $newTempFileName;
-                if (!empty($oldNameFile)) {
-                    $this->fileHelper->deleteFile(basename($oldNameFile), $tempDir);
-                }
+                // if (!empty($oldNameFile)) {
+                //     $this->fileHelper->deleteFile(basename($oldNameFile), $tempDir);
+                // }
             }
         } elseif (
             !empty($oldNameFile) &&
